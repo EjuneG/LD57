@@ -1,6 +1,7 @@
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement; // Added for scene transitions
 
 /// <summary>
 /// Handles transitions between levels with visual effects and proper state management
@@ -19,6 +20,17 @@ public class LevelTransitioner : MonoBehaviour
     [Header("Level Configurations")]
     [SerializeField] private LevelData[] availableLevels;
     
+    [Header("Win Condition")]
+    [SerializeField] private WinConditionManager winConditionManager;
+    [SerializeField] private string finalWinLevel = "Win";
+    [SerializeField] private string finalLossLevel = "Loss";
+    
+    [Header("Scene Transitions")]
+    [SerializeField] private bool enableSceneTransitions = true;
+    [SerializeField] private string victorySceneName = "Victory";
+    [SerializeField] private string defeatSceneName = "Defeat";
+    [SerializeField] private string finalTransitionTrigger = "FinalTransition";
+    
     // Internal state
     private string pendingLevelName;
     private bool isTransitioning = false;
@@ -27,8 +39,27 @@ public class LevelTransitioner : MonoBehaviour
     {
         // Subscribe to level transition events
         GameEvents.OnLevelTransition += HandleLevelTransition;
+        GameEvents.OnLevelEvent += HandleLevelEvent;
         
         // We'll subscribe to narration events in Start() to ensure NarrationManager is fully initialized
+    }
+    
+    private void OnDisable()
+    {
+        // Stop all coroutines to prevent any pending transitions
+        StopAllCoroutines();
+        
+        // Unsubscribe from events
+        GameEvents.OnLevelTransition -= HandleLevelTransition;
+        GameEvents.OnLevelEvent -= HandleLevelEvent;
+        
+        // Unsubscribe from narration events
+        NarrationManager narrationManager = FindObjectOfType<NarrationManager>();
+        if (narrationManager != null)
+        {
+            narrationManager.OnNarrationLineCompleted -= HandleNarrationLineCompleted;
+            narrationManager.OnNarrationSetCompleted -= HandleNarrationSetCompleted;
+        }
     }
     
     private void Start()
@@ -42,6 +73,10 @@ public class LevelTransitioner : MonoBehaviour
             // Create transition panel if it doesn't exist
             CreateTransitionPanel();
         }
+        
+        // Find win condition manager if not assigned
+        if (winConditionManager == null)
+            winConditionManager = FindObjectOfType<WinConditionManager>();
         
         // Start with panel invisible
         if (transitionPanel != null)
@@ -72,24 +107,33 @@ public class LevelTransitioner : MonoBehaviour
         }
     }
     
-    private void OnDisable()
+    /// <summary>
+    /// Handle custom level events
+    /// </summary>
+    private void HandleLevelEvent(string eventId)
     {
-        // Stop all coroutines to prevent any pending transitions
-        StopAllCoroutines();
-        
-        // Unsubscribe from events
-        GameEvents.OnLevelTransition -= HandleLevelTransition;
-        
-        // Unsubscribe from narration events
-        NarrationManager narrationManager = FindObjectOfType<NarrationManager>();
-        if (narrationManager != null)
+        // Check if this is our final transition trigger
+        if (eventId == finalTransitionTrigger && enableSceneTransitions)
         {
-            narrationManager.OnNarrationLineCompleted -= HandleNarrationLineCompleted;
-            narrationManager.OnNarrationSetCompleted -= HandleNarrationSetCompleted;
+            // Determine if we're in win or loss state
+            string currentLevel = winConditionManager?.currentLevel ?? "";
+            
+            if (currentLevel == finalWinLevel)
+            {
+                // We're in the win level, transition to victory scene
+                TransitionToEndingScene(true);
+            }
+            else if (currentLevel == finalLossLevel)
+            {
+                // We're in the loss level, transition to defeat scene
+                TransitionToEndingScene(false);
+            }
+            else
+            {
+                Debug.LogWarning($"Final transition triggered from unexpected level: {currentLevel}");
+            }
         }
     }
-    
-
     
     /// <summary>
     /// Create a transition panel if one doesn't exist
@@ -134,16 +178,108 @@ public class LevelTransitioner : MonoBehaviour
             return;
         }
         
+        // Check if we should override the requested level based on win condition flags
+        string targetLevelName = levelName;
+        
+        // Special case for final level check (win vs loss)
+        if (winConditionManager != null && (levelName == finalWinLevel || levelName == finalLossLevel))
+        {
+            // Check overall win condition to decide which final level to show
+            targetLevelName = winConditionManager.CheckWinCondition() ? finalWinLevel : finalLossLevel;
+            Debug.Log($"Final level check: Using {targetLevelName} based on win condition");
+        }
+        
         // Find the level data
-        LevelData nextLevel = FindLevelByName(levelName);
+        LevelData nextLevel = FindLevelByName(targetLevelName);
         if (nextLevel == null)
         {
-            Debug.LogError($"Could not find level data for level: {levelName}");
+            Debug.LogError($"Could not find level data for level: {targetLevelName}");
             return;
         }
         
-        pendingLevelName = levelName;
+        Debug.Log($"Transitioning to level: {targetLevelName}");
+        pendingLevelName = targetLevelName;
         StartCoroutine(TransitionToLevel(nextLevel));
+    }
+    
+    /// <summary>
+    /// Transition to the ending scene (victory or defeat)
+    /// </summary>
+    public void TransitionToEndingScene(bool isVictory)
+    {
+        if (!enableSceneTransitions)
+        {
+            Debug.LogWarning("Scene transitions are disabled!");
+            return;
+        }
+        
+        string targetScene = isVictory ? victorySceneName : defeatSceneName;
+        Debug.Log($"Transitioning to {(isVictory ? "victory" : "defeat")} scene: {targetScene}");
+        
+        // Start the scene transition coroutine
+        StartCoroutine(TransitionToScene(targetScene));
+    }
+    
+    /// <summary>
+    /// Coroutine to handle scene transitions with fade effect
+    /// </summary>
+    private IEnumerator TransitionToScene(string sceneName)
+    {
+        isTransitioning = true;
+        
+        // Fade out
+        yield return StartCoroutine(FadePanel(0, 1, transitionTime / 2));
+        
+        // Check if the scene exists in the build settings
+        if (SceneUtility.GetBuildIndexByScenePath(sceneName) < 0)
+        {
+            Debug.LogError($"Scene '{sceneName}' is not in the build settings! Make sure to add it.");
+            isTransitioning = false;
+            yield break;
+        }
+        
+        // Load the new scene
+        AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(sceneName);
+        
+        // Wait until the scene is fully loaded
+        while (!asyncLoad.isDone)
+        {
+            yield return null;
+        }
+        
+        // After the scene is loaded, fade back in
+        // Note: This assumes that there's a LevelTransitioner in the new scene that will handle the fade-in
+        // If not, you might need a different approach to fade in the new scene
+        
+        isTransitioning = false;
+    }
+    
+    /// <summary>
+    /// Transition to the next level based on the current level's flag
+    /// This should be called when we want to progress to the next level using branching logic
+    /// </summary>
+    public void TransitionToLevelBasedOnFlag(string currentLevelName)
+    {
+        if (winConditionManager == null)
+        {
+            // If no win condition manager, just do a regular transition to the next level
+            Debug.LogWarning("No WinConditionManager found for branching, using default next level");
+            GameEvents.TriggerOnLevelTransition(currentLevelName + "+1");
+            return;
+        }
+        
+        // Get the next level based on the current level's flag
+        string nextLevelName = winConditionManager.GetNextLevel(currentLevelName);
+        if (string.IsNullOrEmpty(nextLevelName))
+        {
+            Debug.LogError($"No next level defined for {currentLevelName}");
+            return;
+        }
+        
+        Debug.Log($"Branching from {currentLevelName} to {nextLevelName} based on flag");
+        
+        // Trigger the transition to the determined next level
+        GameEvents.TriggerOnLevelTransition(nextLevelName);
     }
     
     /// <summary>
@@ -183,6 +319,8 @@ public class LevelTransitioner : MonoBehaviour
         {
             // Set the new level data
             SetLevelData(nextLevel);
+            
+            // Note: LevelManager.LoadLevelData already handles resetting to frame 0
             
             // Short pause to allow setup
             yield return new WaitForSeconds(0.1f);

@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6450fa13e39ed5f458e1ed0994032b07, type: 3}
+  m_Name: Level1-PlayerMoveUp
+  m_EditorClassIdentifier: 
+  narrationLines:
+  - {fileID: 11400000, guid: 9ac400fe4a4cf9743a1475ab8b141319, type: 2}
+  - {fileID: 11400000, guid: aacb13e34b9ed574182caa4aa89b4fb2, type: 2}
+  autoPlayNext: 1
+  transitionToLevel: 
+  transitionAfterSet: 0
+  setId: 
+  displayName: 

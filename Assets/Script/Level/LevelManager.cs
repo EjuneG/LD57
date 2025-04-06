@@ -14,6 +14,7 @@ public class LevelManager : MonoBehaviour
     [Header("References")]
     [SerializeField] private FOVImageController fovController;
     [SerializeField] private NarrationManager narrationManager;
+    [SerializeField] private Transform buttonTriggersParent; // Reference to the parent containing all ButtonTriggers
 
     [Header("Debug")]
     [SerializeField] private bool debugMode = false;
@@ -22,6 +23,7 @@ public class LevelManager : MonoBehaviour
     private Dictionary<string, FrameSensitiveButton> activeButtons = new Dictionary<string, FrameSensitiveButton>();
     private string currentFrameSet = "";
     private Dictionary<string, AudioSource> audioSources = new Dictionary<string, AudioSource>();
+    private GameObject currentActiveButtonParent; // Track current active button parent
 
     private void OnEnable()
     {
@@ -48,6 +50,13 @@ public class LevelManager : MonoBehaviour
         if (narrationManager == null)
             narrationManager = FindObjectOfType<NarrationManager>();
 
+        // Find ButtonTriggers parent if not assigned
+        if (buttonTriggersParent == null)
+            buttonTriggersParent = GameObject.Find("ButtonTriggers")?.transform;
+
+        if (buttonTriggersParent == null)
+            Debug.LogWarning("LevelManager: ButtonTriggers parent not found!");
+
         // Load level data
         if (levelData != null)
         {
@@ -67,6 +76,12 @@ public class LevelManager : MonoBehaviour
         // First, deactivate any active buttons
         DeactivateAllButtons();
 
+        // Apply level-specific settings to FOV controller
+        if (fovController != null)
+        {
+            fovController.SetInvertDrag(levelData.invertDrag);
+        }
+
         // Initialize frame sets
         if (levelData.frameSets.Count > 0)
         {
@@ -82,10 +97,13 @@ public class LevelManager : MonoBehaviour
 
             // Record initial frame set
             currentFrameSet = levelData.initialFrameSet;
+
+            // IMPORTANT: For new level loads, force start at frame 0
+            frameSetManager.SwitchToFrameSet(levelData.initialFrameSet, false);
         }
 
         // Find and set up all buttons from the level data
-        SetupButtons();
+        SetupButtonsForLevel();
 
         // Reset all frame event triggers
         foreach (var frameEvent in levelData.frameEvents)
@@ -142,21 +160,61 @@ public class LevelManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Find and set up all buttons based on their IDs
+    /// Find and set up buttons for the current level
     /// </summary>
-    private void SetupButtons()
+    private void SetupButtonsForLevel()
     {
-        // Find all FrameSensitiveButtons in the scene (including inactive)
-        FrameSensitiveButton[] sceneButtons = FindObjectsOfType<FrameSensitiveButton>(true);
+        if (buttonTriggersParent == null)
+        {
+            Debug.LogError("LevelManager: ButtonTriggers parent not found!");
+            return;
+        }
+
+        // Deactivate all ButtonTriggers initially
+        foreach (Transform child in buttonTriggersParent)
+        {
+            child.gameObject.SetActive(false);
+        }
+
+        // Find the ButtonTrigger for the current level
+        string targetLevelName = levelData.levelName;
+        Transform levelParent = null;
+
+        foreach (Transform child in buttonTriggersParent)
+        {
+            if (child.name.Equals(targetLevelName, System.StringComparison.OrdinalIgnoreCase))
+            {
+                levelParent = child;
+                break;
+            }
+        }
+
+        if (levelParent == null)
+        {
+            Debug.LogWarning($"LevelManager: ButtonTrigger parent for level '{targetLevelName}' not found!");
+            return;
+        }
+
+        // Activate the parent for this level
+        levelParent.gameObject.SetActive(true);
+        currentActiveButtonParent = levelParent.gameObject;
 
         if (debugMode)
         {
-            Debug.Log($"Found {sceneButtons.Length} FrameSensitiveButtons in scene");
+            Debug.Log($"Activated ButtonTrigger parent for level: {targetLevelName}");
+        }
+
+        // Find all FrameSensitiveButtons under this parent
+        FrameSensitiveButton[] buttonsInLevel = levelParent.GetComponentsInChildren<FrameSensitiveButton>(true);
+
+        if (debugMode)
+        {
+            Debug.Log($"Found {buttonsInLevel.Length} FrameSensitiveButtons in level {targetLevelName}");
         }
 
         // Create a dictionary for quick lookup by ID
         Dictionary<string, FrameSensitiveButton> buttonLookup = new Dictionary<string, FrameSensitiveButton>();
-        foreach (var button in sceneButtons)
+        foreach (var button in buttonsInLevel)
         {
             string id = button.ObjectId;
             if (!string.IsNullOrEmpty(id))
@@ -189,7 +247,7 @@ public class LevelManager : MonoBehaviour
                 continue;
             }
 
-            // Try to find the button in the scene
+            // Try to find the button in the current level
             if (buttonLookup.TryGetValue(buttonId, out FrameSensitiveButton button))
             {
                 // Set up the button
@@ -202,7 +260,7 @@ public class LevelManager : MonoBehaviour
             }
             else
             {
-                Debug.LogWarning($"LevelManager: Button with ID '{buttonId}' not found in scene");
+                Debug.LogWarning($"LevelManager: Button with ID '{buttonId}' not found in current level");
             }
         }
     }
@@ -218,10 +276,10 @@ public class LevelManager : MonoBehaviour
         // Add a new listener for this level
         button.AddListener(() => HandleButtonInteraction(config));
 
-        // Activate the button
-        button.gameObject.SetActive(true);
+        // Set button active state based on config
+        button.gameObject.SetActive(config.activeAtStart);
 
-        // Store in active buttons dictionary
+        // Store in active buttons dictionary (even if inactive)
         activeButtons[config.buttonId] = button;
     }
 
@@ -230,14 +288,14 @@ public class LevelManager : MonoBehaviour
     /// </summary>
     private void DeactivateAllButtons()
     {
-        foreach (var button in activeButtons.Values)
+        // Deactivate any previous active parent
+        if (currentActiveButtonParent != null)
         {
-            if (button != null)
-            {
-                button.gameObject.SetActive(false);
-            }
+            currentActiveButtonParent.SetActive(false);
+            currentActiveButtonParent = null;
         }
 
+        // Also clean up the dictionary
         activeButtons.Clear();
     }
 
@@ -262,44 +320,6 @@ public class LevelManager : MonoBehaviour
                 // Handle the event based on type
                 HandleFrameEvent(frameEvent);
             }
-        }
-    }
-
-    /// <summary>
-    /// Handle a frame event trigger
-    /// </summary>
-    private void HandleFrameEvent(FrameEventTrigger frameEvent)
-    {
-        switch (frameEvent.eventType)
-        {
-            case FrameEventType.PlayNarration:
-                PlayNarration(frameEvent.narrationLine);
-                break;
-
-            case FrameEventType.PlayNarrationSet:
-                PlayNarrationSet(frameEvent.narrationSet);
-                break;
-
-            case FrameEventType.SwitchFrameSet:
-                // Use the targetFrameSet field
-                SwitchFrameSet(frameEvent.targetFrameSet);
-                break;
-
-            case FrameEventType.PlaySound:
-                PlaySound(frameEvent.customEventId);
-                break;
-
-            case FrameEventType.StartAnimation:
-                TriggerAnimation(frameEvent.customEventId);
-                break;
-
-            case FrameEventType.TransitionToLevel:
-                TransitionToLevel(frameEvent.targetLevel);
-                break;
-
-            case FrameEventType.Custom:
-                GameEvents.TriggerOnLevelEvent(frameEvent.customEventId);
-                break;
         }
     }
 
@@ -329,7 +349,7 @@ public class LevelManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Handle button interactions
+    /// Handle button interactions with proper branching
     /// </summary>
     private void HandleButtonInteraction(ButtonConfig config)
     {
@@ -337,6 +357,9 @@ public class LevelManager : MonoBehaviour
         if (!string.IsNullOrEmpty(config.frameSetName) &&
             config.frameSetName != currentFrameSet)
             return;
+
+        // Trigger button pressed event with flag information
+        GameEvents.TriggerOnButtonPressed(config.buttonId, config.flagType);
 
         switch (config.actionType)
         {
@@ -360,8 +383,89 @@ public class LevelManager : MonoBehaviour
                 TriggerAnimation(config.customEventId);
                 break;
 
+            case InteractionActionType.SetButtonActive:
+                SetButtonActive(config.customEventId, true); // Use customEventId as buttonId to set active
+                break;
+
+            case InteractionActionType.TransitionToLevel:
+                // If we have a customNextLevel specified, use that directly
+                if (!string.IsNullOrEmpty(config.customNextLevel))
+                {
+                    GameEvents.TriggerOnLevelTransition(config.customNextLevel);
+                }
+                // Otherwise, use the target level
+                else if (!string.IsNullOrEmpty(config.targetLevel))
+                {
+                    GameEvents.TriggerOnLevelTransition(config.targetLevel);
+                }
+                else
+                {
+                    Debug.LogWarning("Button tried to transition level but no target level specified!");
+                }
+                break;
+
             case InteractionActionType.Custom:
                 GameEvents.TriggerOnLevelEvent(config.customEventId);
+                break;
+        }
+    }
+
+    /// <summary>
+    /// Handle a frame event trigger
+    /// </summary>
+    private void HandleFrameEvent(FrameEventTrigger frameEvent)
+    {
+        // Trigger flag if specified
+        if (frameEvent.flagType != FlagType.None)
+        {
+            GameEvents.TriggerOnFlagMarked(frameEvent.flagType == FlagType.GreenFlag);
+        }
+
+        switch (frameEvent.eventType)
+        {
+            case FrameEventType.PlayNarration:
+                PlayNarration(frameEvent.narrationLine);
+                break;
+
+            case FrameEventType.PlayNarrationSet:
+                PlayNarrationSet(frameEvent.narrationSet);
+                break;
+
+            case FrameEventType.SwitchFrameSet:
+                // Use the targetFrameSet field
+                SwitchFrameSet(frameEvent.targetFrameSet);
+                break;
+
+            case FrameEventType.PlaySound:
+                PlaySound(frameEvent.customEventId);
+                break;
+
+            case FrameEventType.StartAnimation:
+                TriggerAnimation(frameEvent.customEventId);
+                break;
+
+            case FrameEventType.SetButtonActive:
+                SetButtonActive(frameEvent.targetButtonId, frameEvent.setButtonActive);
+                break;
+
+            case FrameEventType.TransitionToLevel:
+                // Use customNextLevel if specified, otherwise use the default targetLevel
+                if (!string.IsNullOrEmpty(frameEvent.customNextLevel))
+                {
+                    GameEvents.TriggerOnLevelTransition(frameEvent.customNextLevel);
+                }
+                else if (!string.IsNullOrEmpty(frameEvent.targetLevel))
+                {
+                    GameEvents.TriggerOnLevelTransition(frameEvent.targetLevel);
+                }
+                else
+                {
+                    Debug.LogWarning("Frame event tried to transition level but no target level specified!");
+                }
+                break;
+
+            case FrameEventType.Custom:
+                GameEvents.TriggerOnLevelEvent(frameEvent.customEventId);
                 break;
         }
     }
@@ -470,5 +574,55 @@ public class LevelManager : MonoBehaviour
 
         // Trigger the level transition event
         GameEvents.TriggerOnLevelTransition(levelName);
+    }
+
+    /// <summary>
+    /// Set a button active or inactive by ID
+    /// </summary>
+    private void SetButtonActive(string buttonId, bool active)
+    {
+        if (string.IsNullOrEmpty(buttonId))
+        {
+            Debug.LogWarning("LevelManager: Cannot set button active - empty button ID!");
+            return;
+        }
+
+        // First try to find the button in our dictionary of active buttons
+        if (activeButtons.TryGetValue(buttonId, out FrameSensitiveButton button))
+        {
+            if (button != null)
+            {
+                button.gameObject.SetActive(active);
+                if (debugMode)
+                {
+                    Debug.Log($"LevelManager: Button '{buttonId}' set {(active ? "active" : "inactive")}");
+                }
+                return;
+            }
+        }
+
+        // If not found in dictionary, search for it in the current level's button triggers
+        if (currentActiveButtonParent != null)
+        {
+            FrameSensitiveButton[] buttons = currentActiveButtonParent.GetComponentsInChildren<FrameSensitiveButton>(true);
+            foreach (var fsButton in buttons)
+            {
+                if (fsButton.ObjectId == buttonId)
+                {
+                    fsButton.gameObject.SetActive(active);
+
+                    // Add to dictionary for future reference
+                    activeButtons[buttonId] = fsButton;
+
+                    if (debugMode)
+                    {
+                        Debug.Log($"LevelManager: Button '{buttonId}' set {(active ? "active" : "inactive")} (found by search)");
+                    }
+                    return;
+                }
+            }
+        }
+
+        Debug.LogWarning($"LevelManager: Button with ID '{buttonId}' not found in level!");
     }
 }

@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   levelName: Level-1
   levelDescription: intro level
+  invertDrag: 0
   initialFrameSet: Level-1
   frameSets:
   - setName: Level-1
@@ -21,6 +22,28 @@ MonoBehaviour:
   - setName: Level-1-2
     resourcePath: Level-1-2
   frameEvents:
+  - frameSetName: Level-1
+    frameIndex: 0
+    eventType: 1
+    customEventId: 005
+    targetFrameSet: 
+    narrationLine: {fileID: 11400000, guid: 96e16d3e014ab264292b6b76ea84d564, type: 2}
+    narrationSet: {fileID: 11400000, guid: aa24cc68b05ff704cb840304c4094201, type: 2}
+    targetLevel: 
+    triggerOnce: 1
+    flagType: 0
+    customNextLevel: 
+  - frameSetName: Level-1
+    frameIndex: 24
+    eventType: 1
+    customEventId: 006
+    targetFrameSet: 
+    narrationLine: {fileID: 0}
+    narrationSet: {fileID: 11400000, guid: 22d263e6888d5a44fb0a2726d2105d12, type: 2}
+    targetLevel: 
+    triggerOnce: 1
+    flagType: 0
+    customNextLevel: 
   - frameSetName: Level-1
     frameIndex: 36
     eventType: 0
@@ -30,6 +53,8 @@ MonoBehaviour:
     narrationSet: {fileID: 0}
     targetLevel: 
     triggerOnce: 1
+    flagType: 0
+    customNextLevel: 
   - frameSetName: Level-1
     frameIndex: 36
     eventType: 2
@@ -39,6 +64,8 @@ MonoBehaviour:
     narrationSet: {fileID: 0}
     targetLevel: 
     triggerOnce: 1
+    flagType: 0
+    customNextLevel: 
   - frameSetName: Level-1-2
     frameIndex: 30
     eventType: 0
@@ -48,6 +75,8 @@ MonoBehaviour:
     narrationSet: {fileID: 0}
     targetLevel: 
     triggerOnce: 1
+    flagType: 0
+    customNextLevel: 
   - frameSetName: Level-1-2
     frameIndex: 24
     eventType: 0
@@ -57,6 +86,8 @@ MonoBehaviour:
     narrationSet: {fileID: 0}
     targetLevel: 
     triggerOnce: 1
+    flagType: 0
+    customNextLevel: 
   buttonConfigs:
   - buttonId: house
     displayName: house
@@ -66,6 +97,9 @@ MonoBehaviour:
     targetFrameSet: 
     narrationLine: {fileID: 11400000, guid: dc76a683e39f81b40ba69709124503e4, type: 2}
     narrationSet: {fileID: 0}
+    targetLevel: 
+    flagType: 1
+    customNextLevel: 
   - buttonId: balloon
     displayName: balloon
     frameSetName: 
@@ -74,3 +108,6 @@ MonoBehaviour:
     targetFrameSet: 
     narrationLine: {fileID: 11400000, guid: 2e0e574b008610245b0630fc8e068068, type: 2}
     narrationSet: {fileID: 0}
+    targetLevel: 
+    flagType: 1
+    customNextLevel: 

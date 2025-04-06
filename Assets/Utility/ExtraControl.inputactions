@@ -1,0 +1,34 @@
+{
+    "name": "ExtraControl",
+    "maps": [
+        {
+            "name": "UI",
+            "id": "83cba5ba-86ef-46bb-a831-bc50f2be9467",
+            "actions": [
+                {
+                    "name": "OpenSetting",
+                    "type": "Button",
+                    "id": "ad2fcdf5-069f-4bef-b8f4-435e031350d6",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "f6029a05-5062-4ed5-a500-3f0c126bf22b",
+                    "path": "",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "OpenSetting",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        }
+    ],
+    "controlSchemes": []
+}

@@ -12,6 +12,7 @@ public class LevelDataEditor : Editor
     
     private SerializedProperty levelNameProp;
     private SerializedProperty levelDescriptionProp;
+    private SerializedProperty invertDragProp;
     private SerializedProperty initialFrameSetProp;
     private SerializedProperty frameSetsProp;
     private SerializedProperty frameEventsProp;
@@ -21,6 +22,7 @@ public class LevelDataEditor : Editor
     {
         levelNameProp = serializedObject.FindProperty("levelName");
         levelDescriptionProp = serializedObject.FindProperty("levelDescription");
+        invertDragProp = serializedObject.FindProperty("invertDrag");
         initialFrameSetProp = serializedObject.FindProperty("initialFrameSet");
         frameSetsProp = serializedObject.FindProperty("frameSets");
         frameEventsProp = serializedObject.FindProperty("frameEvents");
@@ -35,6 +37,13 @@ public class LevelDataEditor : Editor
         
         EditorGUILayout.PropertyField(levelNameProp);
         EditorGUILayout.PropertyField(levelDescriptionProp);
+        
+        EditorGUILayout.Space();
+        
+        // FOV Control Settings
+        EditorGUILayout.LabelField("FOV Control Settings", EditorStyles.boldLabel);
+        EditorGUILayout.PropertyField(invertDragProp, new GUIContent("Invert Drag Direction", 
+            "When checked, dragging down will move forward through frames (useful for levels where focus goes from top to bottom)"));
         
         EditorGUILayout.Space();
         

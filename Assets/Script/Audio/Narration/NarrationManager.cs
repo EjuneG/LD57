@@ -33,6 +33,7 @@ public class NarrationManager : MonoBehaviour
     private bool isTyping = false;
     private bool canAdvance = false;
     private Coroutine typingCoroutine;
+    private bool isPartOfSet = false; // Flag to track if current line is part of a set
     
     private AudioSource audioSource;
     
@@ -77,11 +78,13 @@ public class NarrationManager : MonoBehaviour
         StopAllCoroutines();
         isTyping = false;
         
-        // Track the current line being played
-        // We need to explicitly set this for single lines outside of sets
-        currentLineIndex = 0;
-        currentSet = ScriptableObject.CreateInstance<NarrationSet>();
-        currentSet.narrationLines = new List<NarrationLine> { line };
+        // Only create a new set if this is not part of an existing set
+        if (!isPartOfSet)
+        {
+            currentLineIndex = 0;
+            currentSet = ScriptableObject.CreateInstance<NarrationSet>();
+            currentSet.narrationLines = new List<NarrationLine> { line };
+        }
         
         // Start typing
         typingCoroutine = StartCoroutine(TypeText(line.text));
@@ -105,6 +108,7 @@ public class NarrationManager : MonoBehaviour
         
         currentSet = set;
         currentLineIndex = 0;
+        isPartOfSet = true; // Set flag to indicate we're playing a set
         
         // Play the first line
         PlayLine(set.narrationLines[currentLineIndex]);
@@ -166,6 +170,7 @@ public class NarrationManager : MonoBehaviour
         currentSet = null;
         isTyping = false;
         canAdvance = false;
+        isPartOfSet = false; // Reset the flag
         
         // Trigger the line completion event
         if (lastLine != null)
