@@ -1,0 +1,74 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 89fa4e15d5056254290be505b4bd362a, type: 3}
+  m_Name: Level-2
+  m_EditorClassIdentifier: 
+  levelName: Level-2
+  levelDescription: not intro level
+  initialFrameSet: Level-2
+  frameSets:
+  - setName: Level-2
+    resourcePath: Level-2
+  frameEvents:
+  - frameSetName: Level-1
+    frameIndex: 36
+    eventType: 0
+    customEventId: 001
+    targetFrameSet: 
+    narrationLine: {fileID: 11400000, guid: 39e0702fcea81574d9d612981409f992, type: 2}
+    narrationSet: {fileID: 0}
+    targetLevel: 
+    triggerOnce: 1
+  - frameSetName: Level-1
+    frameIndex: 36
+    eventType: 2
+    customEventId: 002
+    targetFrameSet: Level-1-2
+    narrationLine: {fileID: 11400000, guid: 39e0702fcea81574d9d612981409f992, type: 2}
+    narrationSet: {fileID: 0}
+    targetLevel: 
+    triggerOnce: 1
+  - frameSetName: Level-1-2
+    frameIndex: 30
+    eventType: 0
+    customEventId: 003
+    targetFrameSet: 
+    narrationLine: {fileID: 11400000, guid: d9d5c5d1c83ba7b4193111955db81b4b, type: 2}
+    narrationSet: {fileID: 0}
+    targetLevel: 
+    triggerOnce: 1
+  - frameSetName: Level-1-2
+    frameIndex: 24
+    eventType: 0
+    customEventId: 004
+    targetFrameSet: 
+    narrationLine: {fileID: 11400000, guid: 96e16d3e014ab264292b6b76ea84d564, type: 2}
+    narrationSet: {fileID: 0}
+    targetLevel: 
+    triggerOnce: 1
+  buttonConfigs:
+  - buttonId: house
+    displayName: house
+    frameSetName: 
+    actionType: 0
+    customEventId: 
+    targetFrameSet: 
+    narrationLine: {fileID: 11400000, guid: dc76a683e39f81b40ba69709124503e4, type: 2}
+    narrationSet: {fileID: 0}
+  - buttonId: balloon
+    displayName: balloon
+    frameSetName: 
+    actionType: 0
+    customEventId: 
+    targetFrameSet: 
+    narrationLine: {fileID: 11400000, guid: 2e0e574b008610245b0630fc8e068068, type: 2}
+    narrationSet: {fileID: 0}
