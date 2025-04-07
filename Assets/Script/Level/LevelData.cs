@@ -8,10 +8,16 @@ public class LevelData : ScriptableObject
     [Header("Level Information")]
     public string levelName;
     public string levelDescription;
+    [Tooltip("Color tint to use when transitioning to this level")]
+    public TransitionColorType transitionColor = TransitionColorType.Default;
 
     [Header("FOV Control Settings")]
-    [Tooltip("Whether to invert the drag direction for this level (true = drag down to move forward)")]
-    public bool invertDrag = false;
+    [Tooltip("Direction to drag to move forward through frames")]
+    public DragDirection dragDirection = DragDirection.Up;
+
+    [Header("Audio Settings")]
+    [Tooltip("Background music to play when entering this level (leave empty to keep current music)")]
+    public string backgroundMusic;
 
     [Header("Frame Sets")]
     public string initialFrameSet;
@@ -97,17 +103,18 @@ public class FrameEventTrigger
     [Tooltip("Should this event trigger only once?")]
     public bool triggerOnce = true;
 
+    [Tooltip("Button ID to set active/inactive (use with SetButtonActive event type)")]
+    public string targetButtonId;
+
+    [Tooltip("Whether to activate (true) or deactivate (false) the button")]
+    public bool setButtonActive = true;
+
     [Header("Win Condition")]
     [Tooltip("Flag type for this event (Green = correct, Red = wrong, None = no impact)")]
     public FlagType flagType = FlagType.None;
 
     [Tooltip("Custom next level to transition to (overrides default level progression)")]
     public string customNextLevel;
-    [Tooltip("Button ID to set active/inactive (use with SetButtonActive event type)")]
-    public string targetButtonId;
-
-    [Tooltip("Whether to activate (true) or deactivate (false) the button")]
-    public bool setButtonActive = true;
 
     [Tooltip("Has this event been triggered? (Runtime state)")]
     [NonSerialized] public bool hasTriggered = false;
@@ -145,4 +152,12 @@ public enum FlagType
     None,       // No flag impact
     GreenFlag,  // Correct choice
     RedFlag     // Wrong choice
+}
+
+[Serializable]
+public enum TransitionColorType
+{
+    Default,    // Use default black transition
+    Green,      // Success/correct path transition
+    Red         // Failure/incorrect path transition
 }

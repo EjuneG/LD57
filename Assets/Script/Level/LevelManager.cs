@@ -5,6 +5,7 @@ using UnityEngine.UI;
 
 /// <summary>
 /// Manages level data and connects it to scene buttons using an ID-based system
+/// Simplified to remove WinConditionManager dependency
 /// </summary>
 public class LevelManager : MonoBehaviour
 {
@@ -15,6 +16,7 @@ public class LevelManager : MonoBehaviour
     [SerializeField] private FOVImageController fovController;
     [SerializeField] private NarrationManager narrationManager;
     [SerializeField] private Transform buttonTriggersParent; // Reference to the parent containing all ButtonTriggers
+    [SerializeField] private AudioManager audioManager; // Reference to the AudioManager
 
     [Header("Debug")]
     [SerializeField] private bool debugMode = false;
@@ -50,6 +52,9 @@ public class LevelManager : MonoBehaviour
         if (narrationManager == null)
             narrationManager = FindObjectOfType<NarrationManager>();
 
+        if (audioManager == null)
+            audioManager = AudioManager.Instance;
+
         // Find ButtonTriggers parent if not assigned
         if (buttonTriggersParent == null)
             buttonTriggersParent = GameObject.Find("ButtonTriggers")?.transform;
@@ -79,8 +84,11 @@ public class LevelManager : MonoBehaviour
         // Apply level-specific settings to FOV controller
         if (fovController != null)
         {
-            fovController.SetInvertDrag(levelData.invertDrag);
+            fovController.SetDragDirection(levelData.dragDirection);
         }
+
+        // Play background music if specified
+        PlayLevelBackgroundMusic();
 
         // Initialize frame sets
         if (levelData.frameSets.Count > 0)
@@ -109,6 +117,31 @@ public class LevelManager : MonoBehaviour
         foreach (var frameEvent in levelData.frameEvents)
         {
             frameEvent.hasTriggered = false;
+        }
+    }
+
+    /// <summary>
+    /// Play the background music specified in the level data
+    /// </summary>
+    private void PlayLevelBackgroundMusic()
+    {
+        // Only proceed if we have an audio manager and level data
+        if (audioManager == null || levelData == null)
+            return;
+
+        // If a background music is specified, play it
+        if (!string.IsNullOrEmpty(levelData.backgroundMusic))
+        {
+            audioManager.PlayBGM(levelData.backgroundMusic);
+            
+            if (debugMode)
+            {
+                Debug.Log($"LevelManager: Playing background music: {levelData.backgroundMusic}");
+            }
+        }
+        else if (debugMode)
+        {
+            Debug.Log("LevelManager: No background music specified, keeping current track");
         }
     }
 
@@ -358,8 +391,17 @@ public class LevelManager : MonoBehaviour
             config.frameSetName != currentFrameSet)
             return;
 
-        // Trigger button pressed event with flag information
-        GameEvents.TriggerOnButtonPressed(config.buttonId, config.flagType);
+        // Simplified flag handling - directly use the customNextLevel if specified
+        string targetLevel = null;
+        
+        if (config.flagType != FlagType.None)
+        {
+            // Use customNextLevel if specified, otherwise use the regular targetLevel
+            if (!string.IsNullOrEmpty(config.customNextLevel))
+            {
+                targetLevel = config.customNextLevel;
+            }
+        }
 
         switch (config.actionType)
         {
@@ -388,12 +430,12 @@ public class LevelManager : MonoBehaviour
                 break;
 
             case InteractionActionType.TransitionToLevel:
-                // If we have a customNextLevel specified, use that directly
-                if (!string.IsNullOrEmpty(config.customNextLevel))
+                // First check if we have a flag-based target level
+                if (targetLevel != null)
                 {
-                    GameEvents.TriggerOnLevelTransition(config.customNextLevel);
+                    GameEvents.TriggerOnLevelTransition(targetLevel);
                 }
-                // Otherwise, use the target level
+                // Otherwise, use the standard target level
                 else if (!string.IsNullOrEmpty(config.targetLevel))
                 {
                     GameEvents.TriggerOnLevelTransition(config.targetLevel);
@@ -408,6 +450,15 @@ public class LevelManager : MonoBehaviour
                 GameEvents.TriggerOnLevelEvent(config.customEventId);
                 break;
         }
+        
+        // If the button has a flag type and isn't transitioning directly, trigger the level transition
+        if (config.flagType != FlagType.None && config.actionType != InteractionActionType.TransitionToLevel)
+        {
+            if (!string.IsNullOrEmpty(config.customNextLevel))
+            {
+                GameEvents.TriggerOnLevelTransition(config.customNextLevel);
+            }
+        }
     }
 
     /// <summary>
@@ -415,10 +466,16 @@ public class LevelManager : MonoBehaviour
     /// </summary>
     private void HandleFrameEvent(FrameEventTrigger frameEvent)
     {
-        // Trigger flag if specified
+        // Simplified flag handling - directly transition based on flag type
+        string targetLevel = null;
+        
         if (frameEvent.flagType != FlagType.None)
         {
-            GameEvents.TriggerOnFlagMarked(frameEvent.flagType == FlagType.GreenFlag);
+            // Use customNextLevel if specified, otherwise use default level flow
+            if (!string.IsNullOrEmpty(frameEvent.customNextLevel))
+            {
+                targetLevel = frameEvent.customNextLevel;
+            }
         }
 
         switch (frameEvent.eventType)
@@ -449,11 +506,12 @@ public class LevelManager : MonoBehaviour
                 break;
 
             case FrameEventType.TransitionToLevel:
-                // Use customNextLevel if specified, otherwise use the default targetLevel
-                if (!string.IsNullOrEmpty(frameEvent.customNextLevel))
+                // First check if we have a flag-based target level
+                if (targetLevel != null)
                 {
-                    GameEvents.TriggerOnLevelTransition(frameEvent.customNextLevel);
+                    GameEvents.TriggerOnLevelTransition(targetLevel);
                 }
+                // Otherwise, use the standard target level
                 else if (!string.IsNullOrEmpty(frameEvent.targetLevel))
                 {
                     GameEvents.TriggerOnLevelTransition(frameEvent.targetLevel);
@@ -467,6 +525,15 @@ public class LevelManager : MonoBehaviour
             case FrameEventType.Custom:
                 GameEvents.TriggerOnLevelEvent(frameEvent.customEventId);
                 break;
+        }
+        
+        // If the frame event has a flag type and isn't transitioning directly, trigger the level transition
+        if (frameEvent.flagType != FlagType.None && frameEvent.eventType != FrameEventType.TransitionToLevel)
+        {
+            if (!string.IsNullOrEmpty(frameEvent.customNextLevel))
+            {
+                GameEvents.TriggerOnLevelTransition(frameEvent.customNextLevel);
+            }
         }
     }
 
@@ -559,21 +626,6 @@ public class LevelManager : MonoBehaviour
         {
             Debug.LogWarning($"LevelManager: Cannot find animator: {animationId}");
         }
-    }
-
-    /// <summary>
-    /// Transition to another level
-    /// </summary>
-    private void TransitionToLevel(string levelName)
-    {
-        if (string.IsNullOrEmpty(levelName))
-        {
-            Debug.LogWarning("LevelManager: Cannot transition to empty level name!");
-            return;
-        }
-
-        // Trigger the level transition event
-        GameEvents.TriggerOnLevelTransition(levelName);
     }
 
     /// <summary>

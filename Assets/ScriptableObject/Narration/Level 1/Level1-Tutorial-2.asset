@@ -12,7 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 79a92114758191640973adac6a50e6a6, type: 3}
   m_Name: Level1-Tutorial-2
   m_EditorClassIdentifier: 
-  text: So we'll still have time to get a coffee after!
+  text: It is blurry. Yes, yes.
+  textcolor: {r: 1, g: 1, b: 1, a: 1}
   voiceOver:
     clip: {fileID: 0}
     volume: 1

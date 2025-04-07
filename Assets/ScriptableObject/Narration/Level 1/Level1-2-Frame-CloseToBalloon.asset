@@ -12,9 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 79a92114758191640973adac6a50e6a6, type: 3}
   m_Name: Level1-2-Frame-CloseToBalloon
   m_EditorClassIdentifier: 
-  text: Stop it and go back.
+  text: STOP
   voiceOver:
-    name: 
     clip: {fileID: 0}
     volume: 1
     pitch: 1
+  transitionToLevel: 
+  transitionAfterLine: 0

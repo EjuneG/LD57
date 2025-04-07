@@ -1,0 +1,93 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 89fa4e15d5056254290be505b4bd362a, type: 3}
+  m_Name: Level-4-Red
+  m_EditorClassIdentifier: 
+  levelName: Level-4-Red
+  levelDescription: not intro level
+  transitionColor: 2
+  dragDirection: 0
+  backgroundMusic: 
+  initialFrameSet: Level-4-2
+  frameSets:
+  - setName: Level-1
+    resourcePath: Level-1
+  - setName: Level-1-2
+    resourcePath: Level-1-2
+  - setName: Level-2
+    resourcePath: Level-2
+  - setName: Level-2-1
+    resourcePath: Level-2-1
+  - setName: Level-3
+    resourcePath: Level-3
+  - setName: Level-4
+    resourcePath: Level-4
+  - setName: Level-4-1
+    resourcePath: Level-4-1
+  - setName: Level-4-2
+    resourcePath: Level-4-2
+  - setName: Level-Loss
+    resourcePath: Level-Loss
+  - setName: Level-Win
+    resourcePath: Level-Win
+  frameEvents:
+  - frameSetName: 
+    frameIndex: 0
+    eventType: 0
+    customEventId: 
+    targetFrameSet: 
+    narrationLine: {fileID: 11400000, guid: c1d57750b71bca346900e0d25061bbcf, type: 2}
+    narrationSet: {fileID: 0}
+    targetLevel: 
+    triggerOnce: 0
+    targetButtonId: 
+    setButtonActive: 0
+    flagType: 0
+    customNextLevel: 
+  - frameSetName: 
+    frameIndex: 16
+    eventType: 0
+    customEventId: 
+    targetFrameSet: 
+    narrationLine: {fileID: 11400000, guid: 98912000676eea4488cd9d0ad059340e, type: 2}
+    narrationSet: {fileID: 0}
+    targetLevel: 
+    triggerOnce: 0
+    targetButtonId: 
+    setButtonActive: 0
+    flagType: 0
+    customNextLevel: 
+  buttonConfigs:
+  - buttonId: redball
+    displayName: redball
+    activeAtStart: 1
+    frameSetName: 
+    actionType: 5
+    customEventId: 
+    targetFrameSet: 
+    narrationLine: {fileID: 0}
+    narrationSet: {fileID: 0}
+    targetLevel: Loss
+    flagType: 2
+    customNextLevel: 
+  - buttonId: greenladder
+    displayName: greenladder
+    activeAtStart: 1
+    frameSetName: 
+    actionType: 5
+    customEventId: 
+    targetFrameSet: 
+    narrationLine: {fileID: 0}
+    narrationSet: {fileID: 0}
+    targetLevel: Level-1
+    flagType: 0
+    customNextLevel: 

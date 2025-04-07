@@ -12,10 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 79a92114758191640973adac6a50e6a6, type: 3}
   m_Name: Level1-PlayerMoveUp-1
   m_EditorClassIdentifier: 
-  text: Great! I see you're in focus.
+  text: Great! You're a quick learner!
+  textcolor: {r: 1, g: 1, b: 1, a: 1}
   voiceOver:
     clip: {fileID: 0}
     volume: 1
     pitch: 1
-  transitionToLevel: Level-2
+  transitionToLevel: 
   transitionAfterLine: 0

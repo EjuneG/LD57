@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEditor;
 using System.IO;
+using System.Collections.Generic;
 
 #if UNITY_EDITOR
 [CustomEditor(typeof(LevelData))]
@@ -9,24 +10,89 @@ public class LevelDataEditor : Editor
     private bool showFrameSets = true;
     private bool showFrameEvents = true;
     private bool showButtonConfigs = true;
+    private bool showAudioSettings = true;
     
     private SerializedProperty levelNameProp;
     private SerializedProperty levelDescriptionProp;
-    private SerializedProperty invertDragProp;
+    private SerializedProperty transitionColorProp; // Added property for transition color
+    private SerializedProperty dragDirection;
+    private SerializedProperty backgroundMusic;
     private SerializedProperty initialFrameSetProp;
     private SerializedProperty frameSetsProp;
     private SerializedProperty frameEventsProp;
     private SerializedProperty buttonConfigsProp;
     
+    // For BGM dropdown
+    private string[] availableBGMs = new string[0];
+    private int selectedBGMIndex = -1;
+    
     private void OnEnable()
     {
         levelNameProp = serializedObject.FindProperty("levelName");
         levelDescriptionProp = serializedObject.FindProperty("levelDescription");
-        invertDragProp = serializedObject.FindProperty("invertDrag");
+        transitionColorProp = serializedObject.FindProperty("transitionColor"); // Initialize the transition color property
+        dragDirection = serializedObject.FindProperty("dragDirection");
+        backgroundMusic = serializedObject.FindProperty("backgroundMusic");
         initialFrameSetProp = serializedObject.FindProperty("initialFrameSet");
         frameSetsProp = serializedObject.FindProperty("frameSets");
         frameEventsProp = serializedObject.FindProperty("frameEvents");
         buttonConfigsProp = serializedObject.FindProperty("buttonConfigs");
+        
+        // Get available BGMs
+        RefreshAvailableBGMs();
+    }
+    
+    private void RefreshAvailableBGMs()
+    {
+        // Find available BGMs from Resources/Audio folder
+        List<string> bgmList = new List<string>();
+        bgmList.Add("(None)"); // First option is none/empty
+        
+        // Check if Resources/Audio exists
+        string audioPath = Application.dataPath + "/Resources/Audio";
+        if (Directory.Exists(audioPath))
+        {
+            string[] audioFiles = Directory.GetFiles(audioPath, "*.wav");
+            foreach (string file in audioFiles)
+            {
+                string fileName = Path.GetFileNameWithoutExtension(file);
+                bgmList.Add(fileName);
+            }
+            
+            // Also check MP3 files
+            audioFiles = Directory.GetFiles(audioPath, "*.mp3");
+            foreach (string file in audioFiles)
+            {
+                string fileName = Path.GetFileNameWithoutExtension(file);
+                bgmList.Add(fileName);
+            }
+            
+            // Also check OGG files
+            audioFiles = Directory.GetFiles(audioPath, "*.ogg");
+            foreach (string file in audioFiles)
+            {
+                string fileName = Path.GetFileNameWithoutExtension(file);
+                bgmList.Add(fileName);
+            }
+        }
+        
+        availableBGMs = bgmList.ToArray();
+        
+        // Set selected index based on current value
+        selectedBGMIndex = 0; // Default to "None"
+        string currentBGM = backgroundMusic.stringValue;
+        
+        if (!string.IsNullOrEmpty(currentBGM))
+        {
+            for (int i = 1; i < availableBGMs.Length; i++)
+            {
+                if (availableBGMs[i] == currentBGM)
+                {
+                    selectedBGMIndex = i;
+                    break;
+                }
+            }
+        }
     }
     
     public override void OnInspectorGUI()
@@ -35,15 +101,76 @@ public class LevelDataEditor : Editor
         
         LevelData levelData = (LevelData)target;
         
+        // Level Information section
+        EditorGUILayout.LabelField("Level Information", EditorStyles.boldLabel);
         EditorGUILayout.PropertyField(levelNameProp);
         EditorGUILayout.PropertyField(levelDescriptionProp);
+        
+        // Add transition color property with tooltip
+        EditorGUILayout.PropertyField(transitionColorProp, new GUIContent("Transition Color", 
+            "The color tint to use when transitioning to this level (Default=Black, Green=Success, Red=Failure)"));
         
         EditorGUILayout.Space();
         
         // FOV Control Settings
         EditorGUILayout.LabelField("FOV Control Settings", EditorStyles.boldLabel);
-        EditorGUILayout.PropertyField(invertDragProp, new GUIContent("Invert Drag Direction", 
+        EditorGUILayout.PropertyField(dragDirection, new GUIContent("Choose Drag Direction", 
             "When checked, dragging down will move forward through frames (useful for levels where focus goes from top to bottom)"));
+        
+        EditorGUILayout.Space();
+        
+        // Audio Settings
+        showAudioSettings = EditorGUILayout.Foldout(showAudioSettings, "Audio Settings", true);
+        if (showAudioSettings)
+        {
+            EditorGUI.indentLevel++;
+            
+            // Display dropdown for BGM selection
+            if (availableBGMs.Length > 0)
+            {
+                EditorGUILayout.BeginHorizontal();
+                EditorGUILayout.PrefixLabel(new GUIContent("Background Music", 
+                    "The BGM track to play when this level loads. Leave empty to keep current music."));
+                
+                int newIndex = EditorGUILayout.Popup(selectedBGMIndex, availableBGMs);
+                if (newIndex != selectedBGMIndex)
+                {
+                    selectedBGMIndex = newIndex;
+                    // Update the property
+                    if (selectedBGMIndex == 0) // "None" option
+                    {
+                        backgroundMusic.stringValue = "";
+                    }
+                    else
+                    {
+                        backgroundMusic.stringValue = availableBGMs[selectedBGMIndex];
+                    }
+                }
+                
+                // Add refresh button
+                if (GUILayout.Button("Refresh", GUILayout.Width(60)))
+                {
+                    RefreshAvailableBGMs();
+                }
+                EditorGUILayout.EndHorizontal();
+                
+                // Alternative: Direct text field input
+                EditorGUILayout.PropertyField(backgroundMusic, new GUIContent("Custom Music Name", 
+                    "You can also directly type the name of a music track here"));
+            }
+            else
+            {
+                // If no BGMs found, just show the regular field
+                EditorGUILayout.PropertyField(backgroundMusic, new GUIContent("Background Music", 
+                    "The name of the BGM track to play when this level loads. Leave empty to keep current music."));
+                
+                EditorGUILayout.HelpBox(
+                    "No audio files found in Resources/Audio folder.\nCreate this folder and add audio files to enable the dropdown menu.",
+                    MessageType.Info);
+            }
+            
+            EditorGUI.indentLevel--;
+        }
         
         EditorGUILayout.Space();
         

@@ -1,64 +1,69 @@
 using System;
+using UnityEngine;
 
 /// <summary>
-/// Static class for game-wide events
+/// Global event manager that handles events across the game
+/// Simplified to remove win condition dependencies
 /// </summary>
 public static class GameEvents
 {
-    // Frame events
+    // Frame and interaction events
     public static event Action<int> OnFrameChanged;
+    public static event Action<string> OnObjectInteracted;
     public static event Action<string> OnFrameSetChanged;
     
-    // Object interaction events
-    public static event Action<string> OnObjectInteracted;
-    
-    // Level events
-    public static event Action<string> OnLevelEvent;
+    // Level transition events
     public static event Action<string> OnLevelTransition;
+    public static event Action<string> OnLevelEvent;
     
-    // Win condition events
-    public static event Action<bool> OnFlagMarked;
+    // Button events
     public static event Action<string, FlagType> OnButtonPressed;
     
-    // Trigger methods
+    /// <summary>
+    /// Trigger frame changed event
+    /// </summary>
     public static void TriggerOnFrameChanged(int frameIndex)
     {
         OnFrameChanged?.Invoke(frameIndex);
     }
     
-    public static void TriggerOnFrameSetChanged(string frameSetName)
-    {
-        OnFrameSetChanged?.Invoke(frameSetName);
-    }
-    
+    /// <summary>
+    /// Trigger object interacted event
+    /// </summary>
     public static void TriggerOnObjectInteracted(string objectId)
     {
         OnObjectInteracted?.Invoke(objectId);
     }
     
-    public static void TriggerOnLevelEvent(string eventId)
+    /// <summary>
+    /// Trigger frame set changed event
+    /// </summary>
+    public static void TriggerOnFrameSetChanged(string frameSetName)
     {
-        OnLevelEvent?.Invoke(eventId);
+        OnFrameSetChanged?.Invoke(frameSetName);
     }
     
+    /// <summary>
+    /// Trigger level transition event
+    /// </summary>
     public static void TriggerOnLevelTransition(string levelName)
     {
         OnLevelTransition?.Invoke(levelName);
     }
     
-    public static void TriggerOnFlagMarked(bool isGreenFlag)
+    /// <summary>
+    /// Trigger a custom level event
+    /// </summary>
+    public static void TriggerOnLevelEvent(string eventId)
     {
-        OnFlagMarked?.Invoke(isGreenFlag);
+        OnLevelEvent?.Invoke(eventId);
     }
     
+    /// <summary>
+    /// Trigger button pressed event
+    /// </summary>
     public static void TriggerOnButtonPressed(string buttonId, FlagType flagType)
     {
         OnButtonPressed?.Invoke(buttonId, flagType);
-        
-        // Also trigger the flag marked event for convenience
-        if (flagType != FlagType.None)
-        {
-            TriggerOnFlagMarked(flagType == FlagType.GreenFlag);
-        }
     }
 }

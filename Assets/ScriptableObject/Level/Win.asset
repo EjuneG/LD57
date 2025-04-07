@@ -14,19 +14,23 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   levelName: Win
   levelDescription: winning level
+  transitionColor: 1
+  dragDirection: 0
+  backgroundMusic: ldjam_ge
   initialFrameSet: Level-Win
   frameSets:
   - setName: Level-Win
     resourcePath: Level-Win
   frameEvents: []
   buttonConfigs:
-  - buttonId: touchgrass
-    displayName: touchgrass
+  - buttonId: greenhouse
+    displayName: greenhouse
+    activeAtStart: 1
     frameSetName: 
-    actionType: 6
+    actionType: 7
     customEventId: 
     targetFrameSet: 
-    narrationLine: {fileID: 11400000, guid: dc76a683e39f81b40ba69709124503e4, type: 2}
+    narrationLine: {fileID: 0}
     narrationSet: {fileID: 0}
     targetLevel: 
     flagType: 0

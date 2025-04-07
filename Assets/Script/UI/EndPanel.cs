@@ -19,6 +19,8 @@ public class EndPanel : MonoBehaviour
             
         if (quitButton != null)
             quitButton.onClick.AddListener(QuitGame);
+
+        AudioManager.Instance.PlayBGM("BGM");
     }
 
     public void RestartLoop()

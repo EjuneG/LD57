@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   narrationLines:
   - {fileID: 11400000, guid: fc0c3f9e864b0274b8302f822d0de138, type: 2}
-  - {fileID: 11400000, guid: cd02c807c79cd1146bd97d42618aee90, type: 2}
+  - {fileID: 11400000, guid: c52ef5e4e50b65f4b8216dd4a72a75f7, type: 2}
   - {fileID: 11400000, guid: 15dc63f371c68024490af2d9fbd74767, type: 2}
   autoPlayNext: 1
   transitionToLevel: 

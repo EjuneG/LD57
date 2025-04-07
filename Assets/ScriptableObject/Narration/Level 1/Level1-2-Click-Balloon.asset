@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 79a92114758191640973adac6a50e6a6, type: 3}
   m_Name: Level1-2-Click-Balloon
   m_EditorClassIdentifier: 
-  text: Do you see anything wrong? It seems normal to me. Let us move on.
+  text: WHAT IS WRONG WITH YOU!
   voiceOver:
     clip: {fileID: 0}
     volume: 1

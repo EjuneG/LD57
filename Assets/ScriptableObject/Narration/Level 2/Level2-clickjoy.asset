@@ -13,9 +13,10 @@ MonoBehaviour:
   m_Name: Level2-clickjoy
   m_EditorClassIdentifier: 
   text: Great.
+  textcolor: {r: 1, g: 1, b: 1, a: 1}
   voiceOver:
     clip: {fileID: 0}
     volume: 1
     pitch: 1
-  transitionToLevel: Level-3
-  transitionAfterLine: 0
+  transitionToLevel: Level-3-Red
+  transitionAfterLine: 1

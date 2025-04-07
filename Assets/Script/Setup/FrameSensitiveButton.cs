@@ -65,7 +65,7 @@ public class FrameSensitiveButton : MonoBehaviour
         {
             // Make the button mostly transparent but clickable
             Color transparentColor = buttonImage.color;
-            transparentColor.a = 0.01f; // Almost invisible but still registers clicks
+            transparentColor.a = 0f; // Almost invisible but still registers clicks
             buttonImage.color = transparentColor;
             
             // Add outline component if visualizing is enabled

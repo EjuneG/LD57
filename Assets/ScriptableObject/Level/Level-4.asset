@@ -1,0 +1,145 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 89fa4e15d5056254290be505b4bd362a, type: 3}
+  m_Name: Level-4
+  m_EditorClassIdentifier: 
+  levelName: Level-4
+  levelDescription: not intro level
+  transitionColor: 1
+  dragDirection: 0
+  backgroundMusic: 
+  initialFrameSet: Level-4
+  frameSets:
+  - setName: Level-1
+    resourcePath: Level-1
+  - setName: Level-1-2
+    resourcePath: Level-1-2
+  - setName: Level-2
+    resourcePath: Level-2
+  - setName: Level-2-1
+    resourcePath: Level-2-1
+  - setName: Level-3
+    resourcePath: Level-3
+  - setName: Level-4
+    resourcePath: Level-4
+  - setName: Level-4-1
+    resourcePath: Level-4-1
+  - setName: Level-4-2
+    resourcePath: Level-4-2
+  - setName: Level-Loss
+    resourcePath: Level-Loss
+  - setName: Level-Win
+    resourcePath: Level-Win
+  frameEvents:
+  - frameSetName: 
+    frameIndex: 25
+    eventType: 6
+    customEventId: 
+    targetFrameSet: 
+    narrationLine: {fileID: 0}
+    narrationSet: {fileID: 0}
+    targetLevel: 
+    triggerOnce: 1
+    targetButtonId: redball
+    setButtonActive: 1
+    flagType: 0
+    customNextLevel: 
+  - frameSetName: 
+    frameIndex: 25
+    eventType: 6
+    customEventId: 
+    targetFrameSet: 
+    narrationLine: {fileID: 0}
+    narrationSet: {fileID: 0}
+    targetLevel: 
+    triggerOnce: 1
+    targetButtonId: greenball
+    setButtonActive: 0
+    flagType: 0
+    customNextLevel: 
+  - frameSetName: Level-4
+    frameIndex: 25
+    eventType: 2
+    customEventId: 
+    targetFrameSet: Level-4-1
+    narrationLine: {fileID: 0}
+    narrationSet: {fileID: 0}
+    targetLevel: 
+    triggerOnce: 1
+    targetButtonId: 
+    setButtonActive: 0
+    flagType: 0
+    customNextLevel: 
+  - frameSetName: Level-4
+    frameIndex: 25
+    eventType: 0
+    customEventId: 
+    targetFrameSet: 
+    narrationLine: {fileID: 11400000, guid: d3d82d085126bc04ca53caad3f6f4daf, type: 2}
+    narrationSet: {fileID: 0}
+    targetLevel: 
+    triggerOnce: 1
+    targetButtonId: 
+    setButtonActive: 0
+    flagType: 0
+    customNextLevel: 
+  - frameSetName: Level-4
+    frameIndex: 0
+    eventType: 0
+    customEventId: 
+    targetFrameSet: 
+    narrationLine: {fileID: 11400000, guid: 9ff31b800596eab44bf345bcaf01e016, type: 2}
+    narrationSet: {fileID: 0}
+    targetLevel: 
+    triggerOnce: 1
+    targetButtonId: 
+    setButtonActive: 0
+    flagType: 0
+    customNextLevel: 
+  - frameSetName: Level-4-2
+    frameIndex: 0
+    eventType: 0
+    customEventId: 
+    targetFrameSet: 
+    narrationLine: {fileID: 11400000, guid: 9ff31b800596eab44bf345bcaf01e016, type: 2}
+    narrationSet: {fileID: 0}
+    targetLevel: 
+    triggerOnce: 1
+    targetButtonId: 
+    setButtonActive: 0
+    flagType: 0
+    customNextLevel: 
+  buttonConfigs:
+  - buttonId: redball
+    displayName: redball
+    activeAtStart: 0
+    frameSetName: 
+    actionType: 5
+    customEventId: 
+    targetFrameSet: 
+    narrationLine: {fileID: 0}
+    narrationSet: {fileID: 0}
+    targetLevel: Loss
+    flagType: 2
+    customNextLevel: 
+  - buttonId: greenball
+    displayName: greenball
+    activeAtStart: 1
+    frameSetName: 
+    actionType: 5
+    customEventId: 
+    targetFrameSet: 
+    narrationLine: {fileID: 0}
+    narrationSet: {fileID: 0}
+    targetLevel: Win
+    flagType: 1
+    customNextLevel: 

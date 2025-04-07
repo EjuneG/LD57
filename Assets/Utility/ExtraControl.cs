@@ -28,7 +28,7 @@ public partial class @ExtraControl: IInputActionCollection2, IDisposable
             ""id"": ""83cba5ba-86ef-46bb-a831-bc50f2be9467"",
             ""actions"": [
                 {
-                    ""name"": ""OpenSetting"",
+                    ""name"": ""OpenPause"",
                     ""type"": ""Button"",
                     ""id"": ""ad2fcdf5-069f-4bef-b8f4-435e031350d6"",
                     ""expectedControlType"": ""Button"",
@@ -41,11 +41,11 @@ public partial class @ExtraControl: IInputActionCollection2, IDisposable
                 {
                     ""name"": """",
                     ""id"": ""f6029a05-5062-4ed5-a500-3f0c126bf22b"",
-                    ""path"": """",
+                    ""path"": ""<Keyboard>/escape"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""OpenSetting"",
+                    ""action"": ""OpenPause"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -56,7 +56,7 @@ public partial class @ExtraControl: IInputActionCollection2, IDisposable
 }");
         // UI
         m_UI = asset.FindActionMap("UI", throwIfNotFound: true);
-        m_UI_OpenSetting = m_UI.FindAction("OpenSetting", throwIfNotFound: true);
+        m_UI_OpenPause = m_UI.FindAction("OpenPause", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -118,12 +118,12 @@ public partial class @ExtraControl: IInputActionCollection2, IDisposable
     // UI
     private readonly InputActionMap m_UI;
     private List<IUIActions> m_UIActionsCallbackInterfaces = new List<IUIActions>();
-    private readonly InputAction m_UI_OpenSetting;
+    private readonly InputAction m_UI_OpenPause;
     public struct UIActions
     {
         private @ExtraControl m_Wrapper;
         public UIActions(@ExtraControl wrapper) { m_Wrapper = wrapper; }
-        public InputAction @OpenSetting => m_Wrapper.m_UI_OpenSetting;
+        public InputAction @OpenPause => m_Wrapper.m_UI_OpenPause;
         public InputActionMap Get() { return m_Wrapper.m_UI; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -133,16 +133,16 @@ public partial class @ExtraControl: IInputActionCollection2, IDisposable
         {
             if (instance == null || m_Wrapper.m_UIActionsCallbackInterfaces.Contains(instance)) return;
             m_Wrapper.m_UIActionsCallbackInterfaces.Add(instance);
-            @OpenSetting.started += instance.OnOpenSetting;
-            @OpenSetting.performed += instance.OnOpenSetting;
-            @OpenSetting.canceled += instance.OnOpenSetting;
+            @OpenPause.started += instance.OnOpenPause;
+            @OpenPause.performed += instance.OnOpenPause;
+            @OpenPause.canceled += instance.OnOpenPause;
         }
 
         private void UnregisterCallbacks(IUIActions instance)
         {
-            @OpenSetting.started -= instance.OnOpenSetting;
-            @OpenSetting.performed -= instance.OnOpenSetting;
-            @OpenSetting.canceled -= instance.OnOpenSetting;
+            @OpenPause.started -= instance.OnOpenPause;
+            @OpenPause.performed -= instance.OnOpenPause;
+            @OpenPause.canceled -= instance.OnOpenPause;
         }
 
         public void RemoveCallbacks(IUIActions instance)
@@ -162,6 +162,6 @@ public partial class @ExtraControl: IInputActionCollection2, IDisposable
     public UIActions @UI => new UIActions(this);
     public interface IUIActions
     {
-        void OnOpenSetting(InputAction.CallbackContext context);
+        void OnOpenPause(InputAction.CallbackContext context);
     }
 }

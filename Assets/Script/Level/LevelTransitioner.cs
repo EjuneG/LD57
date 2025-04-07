@@ -1,29 +1,30 @@
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.SceneManagement; // Added for scene transitions
+using UnityEngine.SceneManagement;
 
 /// <summary>
-/// Handles transitions between levels with visual effects and proper state management
+/// Handles transitions between levels with visual effects applied directly to the display image
 /// </summary>
 public class LevelTransitioner : MonoBehaviour
 {
     [Header("References")]
     [SerializeField] private LevelManager levelManager;
-    [SerializeField] private Image transitionPanel;
+    [SerializeField] private Image displayImage; // Direct reference to the display image
     
     [Header("Transition Settings")]
     [SerializeField] private float transitionTime = 1.0f;
     [SerializeField] private AnimationCurve fadeCurve;
-    [SerializeField] private bool useScaleEffect = false;
+    
+    [Header("Tinted Transitions")]
+    [SerializeField] private bool useTintedTransitions = true;
+    [SerializeField] private Color successTintColor = new Color(0.0f, 0.5f, 0.0f, 1.0f); // Green tint
+    [SerializeField] private Color failureTintColor = new Color(0.5f, 0.0f, 0.0f, 1.0f); // Red tint
+    [SerializeField] private Color defaultTintColor = new Color(0.0f, 0.0f, 0.0f, 1.0f); // Black tint
+    [SerializeField] private float minBrightness = 0.0f; // How dark the image gets (0 = completely black)
     
     [Header("Level Configurations")]
     [SerializeField] private LevelData[] availableLevels;
-    
-    [Header("Win Condition")]
-    [SerializeField] private WinConditionManager winConditionManager;
-    [SerializeField] private string finalWinLevel = "Win";
-    [SerializeField] private string finalLossLevel = "Loss";
     
     [Header("Scene Transitions")]
     [SerializeField] private bool enableSceneTransitions = true;
@@ -34,6 +35,7 @@ public class LevelTransitioner : MonoBehaviour
     // Internal state
     private string pendingLevelName;
     private bool isTransitioning = false;
+    private Color originalImageColor; // Store the original color to restore after transition
     
     private void OnEnable()
     {
@@ -67,21 +69,16 @@ public class LevelTransitioner : MonoBehaviour
         // Find components if not assigned
         if (levelManager == null)
             levelManager = FindObjectOfType<LevelManager>();
-        
-        if (transitionPanel == null)
+            
+        // Store the original image color
+        if (displayImage != null)
         {
-            // Create transition panel if it doesn't exist
-            CreateTransitionPanel();
+            originalImageColor = displayImage.color;
+            Debug.Log("LevelTransitioner: Found display image");
         }
-        
-        // Find win condition manager if not assigned
-        if (winConditionManager == null)
-            winConditionManager = FindObjectOfType<WinConditionManager>();
-        
-        // Start with panel invisible
-        if (transitionPanel != null)
+        else
         {
-            SetPanelAlpha(0);
+            Debug.LogError("LevelTransitioner: DisplayImage not assigned!");
         }
         
         // Subscribe to narration end events for auto-transitions
@@ -115,56 +112,35 @@ public class LevelTransitioner : MonoBehaviour
         // Check if this is our final transition trigger
         if (eventId == finalTransitionTrigger && enableSceneTransitions)
         {
-            // Determine if we're in win or loss state
-            string currentLevel = winConditionManager?.currentLevel ?? "";
+            // Simple check - if we're in a victory level, go to victory scene, otherwise defeat
+            string currentLevel = FindActiveLevelName();
             
-            if (currentLevel == finalWinLevel)
-            {
-                // We're in the win level, transition to victory scene
-                TransitionToEndingScene(true);
-            }
-            else if (currentLevel == finalLossLevel)
-            {
-                // We're in the loss level, transition to defeat scene
-                TransitionToEndingScene(false);
-            }
-            else
-            {
-                Debug.LogWarning($"Final transition triggered from unexpected level: {currentLevel}");
-            }
+            // Check if the current level name contains "Win" to determine if it's a victory
+            bool isVictory = currentLevel != null && currentLevel.Contains("Win");
+            TransitionToEndingScene(isVictory);
         }
     }
     
     /// <summary>
-    /// Create a transition panel if one doesn't exist
+    /// Get the current level name
     /// </summary>
-    private void CreateTransitionPanel()
+    private string FindActiveLevelName()
     {
-        // Create a canvas if needed
-        Canvas canvas = FindObjectOfType<Canvas>();
-        if (canvas == null)
+        // Try to find the level name from the level manager
+        if (levelManager != null)
         {
-            GameObject canvasObj = new GameObject("TransitionCanvas");
-            canvas = canvasObj.AddComponent<Canvas>();
-            canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-            canvas.sortingOrder = 100; // Very front
-            canvasObj.AddComponent<CanvasScaler>();
-            canvasObj.AddComponent<GraphicRaycaster>();
+            // Use reflection to get the private field
+            var levelDataField = levelManager.GetType().GetField("levelData", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            if (levelDataField != null)
+            {
+                LevelData currentLevelData = levelDataField.GetValue(levelManager) as LevelData;
+                if (currentLevelData != null)
+                {
+                    return currentLevelData.levelName;
+                }
+            }
         }
-        
-        // Create panel
-        GameObject panelObj = new GameObject("TransitionPanel");
-        panelObj.transform.SetParent(canvas.transform, false);
-        
-        // Configure panel to cover the screen
-        RectTransform rect = panelObj.AddComponent<RectTransform>();
-        rect.anchorMin = Vector2.zero;
-        rect.anchorMax = Vector2.one;
-        rect.sizeDelta = Vector2.zero;
-        
-        // Add image component
-        transitionPanel = panelObj.AddComponent<Image>();
-        transitionPanel.color = new Color(0, 0, 0, 0); // Transparent black
+        return null;
     }
     
     /// <summary>
@@ -178,27 +154,16 @@ public class LevelTransitioner : MonoBehaviour
             return;
         }
         
-        // Check if we should override the requested level based on win condition flags
-        string targetLevelName = levelName;
-        
-        // Special case for final level check (win vs loss)
-        if (winConditionManager != null && (levelName == finalWinLevel || levelName == finalLossLevel))
-        {
-            // Check overall win condition to decide which final level to show
-            targetLevelName = winConditionManager.CheckWinCondition() ? finalWinLevel : finalLossLevel;
-            Debug.Log($"Final level check: Using {targetLevelName} based on win condition");
-        }
-        
         // Find the level data
-        LevelData nextLevel = FindLevelByName(targetLevelName);
+        LevelData nextLevel = FindLevelByName(levelName);
         if (nextLevel == null)
         {
-            Debug.LogError($"Could not find level data for level: {targetLevelName}");
+            Debug.LogError($"Could not find level data for level: {levelName}");
             return;
         }
         
-        Debug.Log($"Transitioning to level: {targetLevelName}");
-        pendingLevelName = targetLevelName;
+        Debug.Log($"Transitioning to level: {levelName}");
+        pendingLevelName = levelName;
         StartCoroutine(TransitionToLevel(nextLevel));
     }
     
@@ -217,18 +182,29 @@ public class LevelTransitioner : MonoBehaviour
         Debug.Log($"Transitioning to {(isVictory ? "victory" : "defeat")} scene: {targetScene}");
         
         // Start the scene transition coroutine
-        StartCoroutine(TransitionToScene(targetScene));
+        StartCoroutine(TransitionToScene(targetScene, isVictory));
     }
     
     /// <summary>
     /// Coroutine to handle scene transitions with fade effect
     /// </summary>
-    private IEnumerator TransitionToScene(string sceneName)
+    private IEnumerator TransitionToScene(string sceneName, bool isVictory)
     {
         isTransitioning = true;
         
+        // Determine which tint color to use
+        Color tintColor = isVictory ? successTintColor : failureTintColor;
+        
         // Fade out
-        yield return StartCoroutine(FadePanel(0, 1, transitionTime / 2));
+        if (displayImage != null && useTintedTransitions)
+        {
+            yield return StartCoroutine(TintImageWithDarkening(tintColor, transitionTime / 2));
+        }
+        else
+        {
+            // Fallback to simple darkening if no display image or tinting disabled
+            yield return new WaitForSeconds(transitionTime / 2);
+        }
         
         // Check if the scene exists in the build settings
         if (SceneUtility.GetBuildIndexByScenePath(sceneName) < 0)
@@ -247,39 +223,7 @@ public class LevelTransitioner : MonoBehaviour
             yield return null;
         }
         
-        // After the scene is loaded, fade back in
-        // Note: This assumes that there's a LevelTransitioner in the new scene that will handle the fade-in
-        // If not, you might need a different approach to fade in the new scene
-        
         isTransitioning = false;
-    }
-    
-    /// <summary>
-    /// Transition to the next level based on the current level's flag
-    /// This should be called when we want to progress to the next level using branching logic
-    /// </summary>
-    public void TransitionToLevelBasedOnFlag(string currentLevelName)
-    {
-        if (winConditionManager == null)
-        {
-            // If no win condition manager, just do a regular transition to the next level
-            Debug.LogWarning("No WinConditionManager found for branching, using default next level");
-            GameEvents.TriggerOnLevelTransition(currentLevelName + "+1");
-            return;
-        }
-        
-        // Get the next level based on the current level's flag
-        string nextLevelName = winConditionManager.GetNextLevel(currentLevelName);
-        if (string.IsNullOrEmpty(nextLevelName))
-        {
-            Debug.LogError($"No next level defined for {currentLevelName}");
-            return;
-        }
-        
-        Debug.Log($"Branching from {currentLevelName} to {nextLevelName} based on flag");
-        
-        // Trigger the transition to the determined next level
-        GameEvents.TriggerOnLevelTransition(nextLevelName);
     }
     
     /// <summary>
@@ -305,22 +249,48 @@ public class LevelTransitioner : MonoBehaviour
     }
     
     /// <summary>
-    /// Transition coroutine - handles the fade effect and level loading
+    /// Transition coroutine - handles the tint effect and level loading
     /// </summary>
     private IEnumerator TransitionToLevel(LevelData nextLevel)
     {
         isTransitioning = true;
         
-        // Fade out
-        yield return StartCoroutine(FadePanel(0, 1, transitionTime / 2));
+        // Play SFX
+        AudioManager.Instance.PlaySFX("transition");
+        // Determine which tint color to use based on the level's transitionColor property
+        if (displayImage != null && useTintedTransitions && nextLevel != null)
+        {
+            Color tintColor = defaultTintColor;
+            
+            // Use the level's specified transition color
+            switch (nextLevel.transitionColor)
+            {
+                case TransitionColorType.Green:
+                    tintColor = successTintColor;
+                    break;
+                case TransitionColorType.Red:
+                    tintColor = failureTintColor;
+                    break;
+                case TransitionColorType.Default:
+                default:
+                    tintColor = defaultTintColor;
+                    break;
+            }
+            
+            // Tint and darken the image
+            yield return StartCoroutine(TintImageWithDarkening(tintColor, transitionTime / 2));
+        }
+        else
+        {
+            // Fallback to simple wait if no display image or tinting disabled
+            yield return new WaitForSeconds(transitionTime / 2);
+        }
         
         // Load the new level
         if (levelManager != null)
         {
             // Set the new level data
             SetLevelData(nextLevel);
-            
-            // Note: LevelManager.LoadLevelData already handles resetting to frame 0
             
             // Short pause to allow setup
             yield return new WaitForSeconds(0.1f);
@@ -330,10 +300,109 @@ public class LevelTransitioner : MonoBehaviour
             Debug.LogError("LevelTransitioner: No LevelManager found!");
         }
         
-        // Fade back in
-        yield return StartCoroutine(FadePanel(1, 0, transitionTime / 2));
+        // Restore the original image color
+        if (displayImage != null)
+        {
+            yield return StartCoroutine(RestoreImageColor(transitionTime / 2));
+        }
         
         isTransitioning = false;
+    }
+    
+    /// <summary>
+    /// Tint the display image with progressive darkening
+    /// </summary>
+    private IEnumerator TintImageWithDarkening(Color tintColor, float duration)
+    {
+        if (displayImage == null)
+        {
+            Debug.LogError("TintImageWithDarkening: No display image found!");
+            yield break;
+        }
+        
+        // Store initial color
+        Color startColor = displayImage.color;
+        float startTime = Time.time;
+        float elapsedTime = 0;
+        
+        while (elapsedTime < duration)
+        {
+            elapsedTime = Time.time - startTime;
+            float t = Mathf.Clamp01(elapsedTime / duration);
+            
+            // Apply animation curve if available
+            if (fadeCurve != null && fadeCurve.keys.Length > 0)
+            {
+                t = fadeCurve.Evaluate(t);
+            }
+            
+            // Progressive darkening with tint
+            // Calculate brightness factor - goes from 1 (full brightness) to minBrightness
+            float brightnessFactor = Mathf.Lerp(1.0f, minBrightness, t);
+            
+            // Blend between original color and tinted dark color
+            Color currentColor = new Color(
+                Mathf.Lerp(startColor.r, tintColor.r * brightnessFactor, t),
+                Mathf.Lerp(startColor.g, tintColor.g * brightnessFactor, t),
+                Mathf.Lerp(startColor.b, tintColor.b * brightnessFactor, t),
+                startColor.a // Maintain original alpha
+            );
+            
+            // Apply the color
+            displayImage.color = currentColor;
+            
+            yield return null;
+        }
+        
+        // Ensure we reach the target color (tinted black)
+        Color endColor = new Color(
+            tintColor.r * minBrightness,
+            tintColor.g * minBrightness,
+            tintColor.b * minBrightness,
+            startColor.a
+        );
+        
+        displayImage.color = endColor;
+    }
+    
+    /// <summary>
+    /// Restore the display image to its original color
+    /// </summary>
+    private IEnumerator RestoreImageColor(float duration)
+    {
+        if (displayImage == null)
+        {
+            Debug.LogError("RestoreImageColor: No display image found!");
+            yield break;
+        }
+        
+        // Store current color
+        Color startColor = displayImage.color;
+        float startTime = Time.time;
+        float elapsedTime = 0;
+        
+        while (elapsedTime < duration)
+        {
+            elapsedTime = Time.time - startTime;
+            float t = Mathf.Clamp01(elapsedTime / duration);
+            
+            // Apply animation curve if available
+            if (fadeCurve != null && fadeCurve.keys.Length > 0)
+            {
+                t = fadeCurve.Evaluate(t);
+            }
+            
+            // Blend from current color to original color
+            Color currentColor = Color.Lerp(startColor, originalImageColor, t);
+            
+            // Apply the color
+            displayImage.color = currentColor;
+            
+            yield return null;
+        }
+        
+        // Ensure we reach the original color
+        displayImage.color = originalImageColor;
     }
     
     /// <summary>
@@ -353,54 +422,6 @@ public class LevelTransitioner : MonoBehaviour
         else
         {
             Debug.LogError("LevelTransitioner: Could not access levelData field in LevelManager");
-        }
-    }
-    
-    /// <summary>
-    /// Fade panel from startAlpha to endAlpha over duration
-    /// </summary>
-    private IEnumerator FadePanel(float startAlpha, float endAlpha, float duration)
-    {
-        float startTime = Time.time;
-        float elapsedTime = 0;
-        
-        while (elapsedTime < duration)
-        {
-            elapsedTime = Time.time - startTime;
-            float t = Mathf.Clamp01(elapsedTime / duration);
-            
-            // Apply animation curve if available
-            if (fadeCurve != null && fadeCurve.keys.Length > 0)
-            {
-                t = fadeCurve.Evaluate(t);
-            }
-            
-            float alpha = Mathf.Lerp(startAlpha, endAlpha, t);
-            SetPanelAlpha(alpha);
-            
-            yield return null;
-        }
-        
-        // Ensure we reach the target alpha
-        SetPanelAlpha(endAlpha);
-    }
-    
-    /// <summary>
-    /// Set the panel's alpha value
-    /// </summary>
-    private void SetPanelAlpha(float alpha)
-    {
-        if (transitionPanel == null) return;
-        
-        Color color = transitionPanel.color;
-        color.a = alpha;
-        transitionPanel.color = color;
-        
-        // Apply scale effect if enabled
-        if (useScaleEffect)
-        {
-            float scale = 1.0f + (0.1f * alpha);
-            transitionPanel.transform.localScale = new Vector3(scale, scale, 1);
         }
     }
     

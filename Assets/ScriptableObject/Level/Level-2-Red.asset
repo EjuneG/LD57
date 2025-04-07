@@ -1,0 +1,98 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 89fa4e15d5056254290be505b4bd362a, type: 3}
+  m_Name: Level-2-Red
+  m_EditorClassIdentifier: 
+  levelName: Level-2-Red
+  levelDescription: not intro level
+  transitionColor: 2
+  dragDirection: 1
+  backgroundMusic: 
+  initialFrameSet: Level-2
+  frameSets:
+  - setName: Level-1
+    resourcePath: Level-1
+  - setName: Level-1-2
+    resourcePath: Level-1-2
+  - setName: Level-2
+    resourcePath: Level-2
+  - setName: Level-2-1
+    resourcePath: Level-2-1
+  - setName: Level-Loss
+    resourcePath: Level-Loss
+  - setName: Level-Win
+    resourcePath: Level-Win
+  frameEvents:
+  - frameSetName: Level-2
+    frameIndex: 35
+    eventType: 2
+    customEventId: 
+    targetFrameSet: Level-2-1
+    narrationLine: {fileID: 0}
+    narrationSet: {fileID: 0}
+    targetLevel: 
+    triggerOnce: 0
+    targetButtonId: 
+    setButtonActive: 1
+    flagType: 0
+    customNextLevel: 
+  - frameSetName: Level-2
+    frameIndex: 0
+    eventType: 0
+    customEventId: 
+    targetFrameSet: 
+    narrationLine: {fileID: 11400000, guid: 717b39694e440734e8d4c6013e23c042, type: 2}
+    narrationSet: {fileID: 0}
+    targetLevel: 
+    triggerOnce: 0
+    targetButtonId: 
+    setButtonActive: 1
+    flagType: 0
+    customNextLevel: 
+  - frameSetName: 
+    frameIndex: 35
+    eventType: 6
+    customEventId: 
+    targetFrameSet: 
+    narrationLine: {fileID: 11400000, guid: 717b39694e440734e8d4c6013e23c042, type: 2}
+    narrationSet: {fileID: 0}
+    targetLevel: 
+    triggerOnce: 0
+    targetButtonId: greenline
+    setButtonActive: 0
+    flagType: 0
+    customNextLevel: 
+  buttonConfigs:
+  - buttonId: joy
+    displayName: joy
+    activeAtStart: 1
+    frameSetName: 
+    actionType: 0
+    customEventId: 
+    targetFrameSet: 
+    narrationLine: {fileID: 11400000, guid: 592f20dae053ab447af983556d079680, type: 2}
+    narrationSet: {fileID: 0}
+    targetLevel: 
+    flagType: 2
+    customNextLevel: 
+  - buttonId: greenline
+    displayName: greenline
+    activeAtStart: 1
+    frameSetName: 
+    actionType: 0
+    customEventId: 
+    targetFrameSet: 
+    narrationLine: {fileID: 11400000, guid: fc62e9c93b851874eb41942316859a3a, type: 2}
+    narrationSet: {fileID: 0}
+    targetLevel: 
+    flagType: 1
+    customNextLevel: 

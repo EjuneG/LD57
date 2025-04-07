@@ -6,7 +6,7 @@
             "id": "83cba5ba-86ef-46bb-a831-bc50f2be9467",
             "actions": [
                 {
-                    "name": "OpenSetting",
+                    "name": "OpenPause",
                     "type": "Button",
                     "id": "ad2fcdf5-069f-4bef-b8f4-435e031350d6",
                     "expectedControlType": "Button",
@@ -19,11 +19,11 @@
                 {
                     "name": "",
                     "id": "f6029a05-5062-4ed5-a500-3f0c126bf22b",
-                    "path": "",
+                    "path": "<Keyboard>/escape",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "OpenSetting",
+                    "action": "OpenPause",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

@@ -15,12 +15,24 @@ public class NarrationLine : ScriptableObject
 {
     [TextArea(3, 10)]
     public string text;
+    public Color textcolor = Color.white;
     
     [Header("Audio")]
     public VoiceOver voiceOver;
-
+    
+    [Header("Talking Sound")]
+    [Tooltip("Type of character voice for talking sound effects")]
+    public NarrationVoiceType voiceType = NarrationVoiceType.Normal;
+    
     [Header("Level Transition")]
     [Tooltip("If set, the game will transition to this level after this line")]
     public string transitionToLevel;
     public bool transitionAfterLine = false;
+}
+
+// Enum to define the type of character voice
+public enum NarrationVoiceType
+{
+    Normal,
+    Evil
 }

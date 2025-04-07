@@ -12,63 +12,82 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 89fa4e15d5056254290be505b4bd362a, type: 3}
   m_Name: Level-3
   m_EditorClassIdentifier: 
-  levelName: Level-2
+  levelName: Level-3
   levelDescription: not intro level
-  initialFrameSet: Level-2
+  transitionColor: 1
+  dragDirection: 3
+  backgroundMusic: 
+  initialFrameSet: Level-3
   frameSets:
+  - setName: Level-1
+    resourcePath: Level-1
+  - setName: Level-1-2
+    resourcePath: Level-1-2
   - setName: Level-2
     resourcePath: Level-2
+  - setName: Level-2-1
+    resourcePath: Level-2-1
+  - setName: Level-3
+    resourcePath: Level-3
+  - setName: Level-4
+    resourcePath: Level-4
+  - setName: Level-4-1
+    resourcePath: Level-4-1
+  - setName: Level-4-2
+    resourcePath: Level-4-2
+  - setName: Level-Loss
+    resourcePath: Level-Loss
+  - setName: Level-Win
+    resourcePath: Level-Win
   frameEvents:
-  - frameSetName: Level-1
-    frameIndex: 36
+  - frameSetName: 
+    frameIndex: 0
     eventType: 0
-    customEventId: 001
+    customEventId: 
     targetFrameSet: 
-    narrationLine: {fileID: 11400000, guid: 39e0702fcea81574d9d612981409f992, type: 2}
+    narrationLine: {fileID: 11400000, guid: 5d0b146c9384e1845ab524830aaa1300, type: 2}
     narrationSet: {fileID: 0}
     targetLevel: 
     triggerOnce: 1
-  - frameSetName: Level-1
-    frameIndex: 36
-    eventType: 2
-    customEventId: 002
-    targetFrameSet: Level-1-2
-    narrationLine: {fileID: 11400000, guid: 39e0702fcea81574d9d612981409f992, type: 2}
-    narrationSet: {fileID: 0}
-    targetLevel: 
-    triggerOnce: 1
-  - frameSetName: Level-1-2
-    frameIndex: 30
+    targetButtonId: 
+    setButtonActive: 1
+    flagType: 0
+    customNextLevel: 
+  - frameSetName: 
+    frameIndex: 26
     eventType: 0
-    customEventId: 003
+    customEventId: 
     targetFrameSet: 
-    narrationLine: {fileID: 11400000, guid: d9d5c5d1c83ba7b4193111955db81b4b, type: 2}
+    narrationLine: {fileID: 11400000, guid: 3993758e43cc1f5479772c9dd3fc7ade, type: 2}
     narrationSet: {fileID: 0}
     targetLevel: 
     triggerOnce: 1
-  - frameSetName: Level-1-2
-    frameIndex: 24
-    eventType: 0
-    customEventId: 004
-    targetFrameSet: 
-    narrationLine: {fileID: 11400000, guid: 96e16d3e014ab264292b6b76ea84d564, type: 2}
-    narrationSet: {fileID: 0}
-    targetLevel: 
-    triggerOnce: 1
+    targetButtonId: 
+    setButtonActive: 1
+    flagType: 0
+    customNextLevel: 
   buttonConfigs:
-  - buttonId: house
-    displayName: house
+  - buttonId: red
+    displayName: red
+    activeAtStart: 1
     frameSetName: 
     actionType: 0
     customEventId: 
     targetFrameSet: 
-    narrationLine: {fileID: 11400000, guid: dc76a683e39f81b40ba69709124503e4, type: 2}
+    narrationLine: {fileID: 11400000, guid: d0610d732f2266a40bad5c969e7f196b, type: 2}
     narrationSet: {fileID: 0}
-  - buttonId: balloon
-    displayName: balloon
+    targetLevel: 
+    flagType: 2
+    customNextLevel: 
+  - buttonId: green
+    displayName: green
+    activeAtStart: 1
     frameSetName: 
-    actionType: 0
+    actionType: 5
     customEventId: 
     targetFrameSet: 
-    narrationLine: {fileID: 11400000, guid: 2e0e574b008610245b0630fc8e068068, type: 2}
+    narrationLine: {fileID: 0}
     narrationSet: {fileID: 0}
+    targetLevel: Level-4
+    flagType: 1
+    customNextLevel: 

@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ba85d2954844dea4da34a0ce40e2efbe, type: 3}
+  m_Name: Slide 4
+  m_EditorClassIdentifier: 
+  image: {fileID: -5366849773926444069, guid: 77d6ac32bb8a0354ab1c04cbf7bfac0d, type: 3}
+  text: 'Rushing into a tiny eye clinic next to your work place,
+
+    you are being
+    greeted by a doctor.
+
+    "Let us do a little exam, alright?"'
+  textColor: {r: 1, g: 0.9960785, b: 0.7254902, a: 1}
+  displayDuration: 3

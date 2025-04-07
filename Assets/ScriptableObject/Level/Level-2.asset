@@ -14,7 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   levelName: Level-2
   levelDescription: not intro level
-  invertDrag: 1
+  transitionColor: 1
+  dragDirection: 1
+  backgroundMusic: 
   initialFrameSet: Level-2
   frameSets:
   - setName: Level-1
@@ -31,7 +33,7 @@ MonoBehaviour:
     resourcePath: Level-Win
   frameEvents:
   - frameSetName: Level-2
-    frameIndex: 37
+    frameIndex: 35
     eventType: 2
     customEventId: 
     targetFrameSet: Level-2-1
@@ -39,22 +41,40 @@ MonoBehaviour:
     narrationSet: {fileID: 0}
     targetLevel: 
     triggerOnce: 0
+    targetButtonId: 
+    setButtonActive: 1
     flagType: 0
     customNextLevel: 
   - frameSetName: Level-2
     frameIndex: 0
-    eventType: 0
+    eventType: 1
+    customEventId: 
+    targetFrameSet: 
+    narrationLine: {fileID: 0}
+    narrationSet: {fileID: 11400000, guid: 045ac768623c73b41b8a49852b72d046, type: 2}
+    targetLevel: 
+    triggerOnce: 0
+    targetButtonId: 
+    setButtonActive: 1
+    flagType: 0
+    customNextLevel: 
+  - frameSetName: 
+    frameIndex: 35
+    eventType: 6
     customEventId: 
     targetFrameSet: 
     narrationLine: {fileID: 11400000, guid: 717b39694e440734e8d4c6013e23c042, type: 2}
     narrationSet: {fileID: 0}
     targetLevel: 
     triggerOnce: 0
+    targetButtonId: greenline
+    setButtonActive: 0
     flagType: 0
     customNextLevel: 
   buttonConfigs:
   - buttonId: joy
     displayName: joy
+    activeAtStart: 1
     frameSetName: 
     actionType: 0
     customEventId: 
@@ -63,4 +83,16 @@ MonoBehaviour:
     narrationSet: {fileID: 0}
     targetLevel: 
     flagType: 2
+    customNextLevel: 
+  - buttonId: greenline
+    displayName: greenline
+    activeAtStart: 1
+    frameSetName: 
+    actionType: 5
+    customEventId: 
+    targetFrameSet: Level-3
+    narrationLine: {fileID: 0}
+    narrationSet: {fileID: 0}
+    targetLevel: Level-3
+    flagType: 1
     customNextLevel: 

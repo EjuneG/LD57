@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 79a92114758191640973adac6a50e6a6, type: 3}
   m_Name: Level1-Tutorial-1
   m_EditorClassIdentifier: 
-  text: Here you are! It's the routine as always. Follow my procedure, and let's
-    get this done quickly.
+  text: So tell me, what do you see?
+  textcolor: {r: 1, g: 1, b: 1, a: 1}
   voiceOver:
     clip: {fileID: 0}
     volume: 1
