@@ -147,7 +147,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      02_eyeexam1_00023_0: -3859413378530248059
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

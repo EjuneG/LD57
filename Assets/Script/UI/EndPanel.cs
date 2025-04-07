@@ -7,6 +7,7 @@ public class EndPanel : MonoBehaviour
     [Header("UI Elements")]
     [SerializeField] private Button continueButton;
     [SerializeField] private Button quitButton;
+    public bool isVictory;
 
     
     [Header("Scene Settings")]
@@ -20,7 +21,9 @@ public class EndPanel : MonoBehaviour
         if (quitButton != null)
             quitButton.onClick.AddListener(QuitGame);
 
+        if(!isVictory){
         AudioManager.Instance.PlayBGM("BGM");
+        }
     }
 
     public void RestartLoop()

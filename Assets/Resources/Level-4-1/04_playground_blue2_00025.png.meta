@@ -147,7 +147,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      04_playground_blue2_00025_0: -5683874538788646414
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

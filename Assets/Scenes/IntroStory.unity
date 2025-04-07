@@ -219,7 +219,7 @@ MonoBehaviour:
   activeFrameRanges:
   - startFrame: 0
     endFrame: 39
-  fovController: {fileID: 93846806}
+  fovController: {fileID: 0}
   showOutline: 0
   outlineColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
   outlineThickness: 2
@@ -319,7 +319,6 @@ GameObject:
   - component: {fileID: 93846809}
   - component: {fileID: 93846808}
   - component: {fileID: 93846807}
-  - component: {fileID: 93846806}
   - component: {fileID: 93846810}
   m_Layer: 5
   m_Name: DisplayImage
@@ -328,26 +327,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &93846806
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 93846805}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ead0bfd2f6d6bd84e83fd805b1c686e2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  displayImage: {fileID: 93846807}
-  resourcePath: Level-1
-  distancePerFrame: 50
-  dragDirection: 0
-  wrapAround: 0
-  hideCursorWhileDragging: 1
-  mouseSensitivity: 1
-  maxFramesPerSecond: 10
 --- !u!114 &93846807
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -637,7 +616,7 @@ MonoBehaviour:
   activeFrameRanges:
   - startFrame: 0
     endFrame: 39
-  fovController: {fileID: 93846806}
+  fovController: {fileID: 0}
   showOutline: 0
   outlineColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
   outlineThickness: 2
@@ -782,7 +761,7 @@ MonoBehaviour:
   activeFrameRanges:
   - startFrame: 0
     endFrame: 10
-  fovController: {fileID: 93846806}
+  fovController: {fileID: 0}
   showOutline: 0
   outlineColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
   outlineThickness: 2
@@ -927,7 +906,7 @@ MonoBehaviour:
   activeFrameRanges:
   - startFrame: 13
     endFrame: 16
-  fovController: {fileID: 93846806}
+  fovController: {fileID: 0}
   showOutline: 0
   outlineColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
   outlineThickness: 2
@@ -1174,7 +1153,7 @@ MonoBehaviour:
   activeFrameRanges:
   - startFrame: 13
     endFrame: 21
-  fovController: {fileID: 93846806}
+  fovController: {fileID: 0}
   showOutline: 0
   outlineColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
   outlineThickness: 2
@@ -1467,7 +1446,7 @@ MonoBehaviour:
   activeFrameRanges:
   - startFrame: 30
     endFrame: 39
-  fovController: {fileID: 93846806}
+  fovController: {fileID: 0}
   showOutline: 0
   outlineColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
   outlineThickness: 2
@@ -1800,7 +1779,7 @@ MonoBehaviour:
   activeFrameRanges:
   - startFrame: 0
     endFrame: 8
-  fovController: {fileID: 93846806}
+  fovController: {fileID: 0}
   showOutline: 0
   outlineColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
   outlineThickness: 2
@@ -1945,7 +1924,7 @@ MonoBehaviour:
   activeFrameRanges:
   - startFrame: 0
     endFrame: 39
-  fovController: {fileID: 93846806}
+  fovController: {fileID: 0}
   showOutline: 0
   outlineColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
   outlineThickness: 2
@@ -2090,7 +2069,7 @@ MonoBehaviour:
   activeFrameRanges:
   - startFrame: 0
     endFrame: 39
-  fovController: {fileID: 93846806}
+  fovController: {fileID: 0}
   showOutline: 0
   outlineColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
   outlineThickness: 2
@@ -2235,7 +2214,7 @@ MonoBehaviour:
   activeFrameRanges:
   - startFrame: 13
     endFrame: 21
-  fovController: {fileID: 93846806}
+  fovController: {fileID: 0}
   showOutline: 0
   outlineColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
   outlineThickness: 2
@@ -2510,7 +2489,7 @@ MonoBehaviour:
   activeFrameRanges:
   - startFrame: 0
     endFrame: 10
-  fovController: {fileID: 93846806}
+  fovController: {fileID: 0}
   showOutline: 0
   outlineColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
   outlineThickness: 2
@@ -2869,7 +2848,7 @@ MonoBehaviour:
   activeFrameRanges:
   - startFrame: 13
     endFrame: 16
-  fovController: {fileID: 93846806}
+  fovController: {fileID: 0}
   showOutline: 0
   outlineColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
   outlineThickness: 2
@@ -3051,7 +3030,7 @@ MonoBehaviour:
   activeFrameRanges:
   - startFrame: 15
     endFrame: 16
-  fovController: {fileID: 93846806}
+  fovController: {fileID: 0}
   showOutline: 0
   outlineColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
   outlineThickness: 2
@@ -3196,7 +3175,7 @@ MonoBehaviour:
   activeFrameRanges:
   - startFrame: 0
     endFrame: 10
-  fovController: {fileID: 93846806}
+  fovController: {fileID: 0}
   showOutline: 0
   outlineColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
   outlineThickness: 2
@@ -3517,7 +3496,7 @@ MonoBehaviour:
   activeFrameRanges:
   - startFrame: 34
     endFrame: 39
-  fovController: {fileID: 93846806}
+  fovController: {fileID: 0}
   showOutline: 0
   outlineColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
   outlineThickness: 2

@@ -147,7 +147,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      04_playground_red_00014_0: -6454570104848552395
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

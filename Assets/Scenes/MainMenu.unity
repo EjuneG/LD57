@@ -1578,6 +1578,26 @@ PrefabInstance:
       propertyPath: m_Name
       value: AudioManager
       objectReference: {fileID: 0}
+    - target: {fileID: 4310094556389555189, guid: fb7aac17bc709d04fad0eb8eaf97a777, type: 3}
+      propertyPath: bgmSounds.Array.size
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 4310094556389555189, guid: fb7aac17bc709d04fad0eb8eaf97a777, type: 3}
+      propertyPath: bgmSounds.Array.data[3].clip
+      value: 
+      objectReference: {fileID: 8300000, guid: 60eab1387717c9146a07e13459887923, type: 3}
+    - target: {fileID: 4310094556389555189, guid: fb7aac17bc709d04fad0eb8eaf97a777, type: 3}
+      propertyPath: bgmSounds.Array.data[3].name
+      value: ldjam_ge
+      objectReference: {fileID: 0}
+    - target: {fileID: 4310094556389555189, guid: fb7aac17bc709d04fad0eb8eaf97a777, type: 3}
+      propertyPath: bgmSounds.Array.data[3].pitch
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4310094556389555189, guid: fb7aac17bc709d04fad0eb8eaf97a777, type: 3}
+      propertyPath: bgmSounds.Array.data[3].volume
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 8422420514270295491, guid: fb7aac17bc709d04fad0eb8eaf97a777, type: 3}
       propertyPath: m_LocalPosition.x
       value: 913.7129

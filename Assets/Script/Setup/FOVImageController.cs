@@ -113,116 +113,132 @@ public class FOVImageController : MonoBehaviour
     }
     
     private void Update()
-{
-    // Check for mouse button press
-    if (Input.GetMouseButtonDown(1))
     {
-        isDragging = true;
-        lastMousePosition = Input.mousePosition;
-        startFrameIndex = currentFrameIndex;
-        accumulatedDragDistance = 0f;
-        mouseDragStartPosition = Input.mousePosition; // Record starting position
-        
-        // Hide cursor but don't lock it to the center immediately
-        if (hideCursorWhileDragging)
+        // Check for mouse button press
+        if (Input.GetMouseButtonDown(1))
         {
-            Cursor.visible = false;
-            // Don't lock the cursor immediately - this causes the flash
-            // Cursor.lockState = CursorLockMode.Locked; 
+            isDragging = true;
+            lastMousePosition = Input.mousePosition;
+            startFrameIndex = currentFrameIndex;
+            accumulatedDragDistance = 0f;
+            mouseDragStartPosition = Input.mousePosition; // Record starting position
+            
+            // Hide cursor but don't lock it to the center immediately
+            if (hideCursorWhileDragging)
+            {
+                Cursor.visible = false;
+                // Don't lock the cursor immediately - this causes the flash
+                // Cursor.lockState = CursorLockMode.Locked; 
+            }
+        }
+        
+        // Check for mouse button release
+        if (Input.GetMouseButtonUp(1))
+        {
+            isDragging = false;
+            
+            // Restore cursor visibility and position
+            if (hideCursorWhileDragging)
+            {
+                // First unlock cursor if it was locked
+                Cursor.lockState = CursorLockMode.None;
+                
+                // Return cursor to where dragging started
+                StartCoroutine(ResetCursorPosition());
+            }
+        }
+        
+        // Handle dragging using normalized mouse delta with rate limiting
+        if (isDragging)
+        {
+            // Get the mouse delta
+            Vector2 mouseDelta = new Vector2(Input.GetAxis("Mouse X"), Input.GetAxis("Mouse Y"));
+            
+            // Apply sensitivity multiplier
+            mouseDelta *= mouseSensitivity;
+            
+            // Extract delta based on drag direction
+            float movementDelta = 0f;
+            
+            switch (dragDirection)
+            {
+                case DragDirection.Up:
+                    movementDelta = mouseDelta.y; // Original behavior
+                    break;
+                    
+                case DragDirection.Down:
+                    movementDelta = -mouseDelta.y; // Inverted Y
+                    break;
+                    
+                case DragDirection.Left:
+                    movementDelta = -mouseDelta.x; // Use X-axis, inverted
+                    break;
+                    
+                case DragDirection.Right:
+                    movementDelta = mouseDelta.x; // Use X-axis
+                    break;
+            }
+            
+            // Apply a fixed scaling factor for more consistent behavior
+            movementDelta *= 10f;
+            
+            // Rate limit the maximum movement per second to create a more consistent experience
+            float maxDeltaPerFrame = (maxFramesPerSecond * distancePerFrame) * Time.deltaTime;
+            movementDelta = Mathf.Clamp(movementDelta, -maxDeltaPerFrame, maxDeltaPerFrame);
+            
+            // Accumulate the drag distance
+            accumulatedDragDistance += movementDelta;
+            
+            // Calculate how many frames to move
+            int frameChange = Mathf.FloorToInt(accumulatedDragDistance / distancePerFrame);
+            
+            if (frameChange != 0)
+            {
+                // Remove the consumed distance
+                accumulatedDragDistance -= frameChange * distancePerFrame;
+                
+                // Calculate new frame index
+                int newIndex = currentFrameIndex + frameChange;
+                
+                if (wrapAround)
+                {
+                    // Wrap around if we go past the limits
+                    newIndex = (newIndex % totalFrames + totalFrames) % totalFrames;
+                }
+                else
+                {
+                    // Clamp to valid range
+                    newIndex = Mathf.Clamp(newIndex, 0, totalFrames - 1);
+                }
+                
+                // Update frame if needed
+                if (newIndex != currentFrameIndex)
+                {
+                    currentFrameIndex = newIndex;
+                    displayImage.sprite = fovFrames[currentFrameIndex];
+                    
+                    // Trigger frame changed event
+                    GameEvents.TriggerOnFrameChanged(currentFrameIndex);
+                }
+            }
         }
     }
     
-    // Check for mouse button release
-    if (Input.GetMouseButtonUp(1))
+    // Coroutine to handle cursor reset with proper timing
+    private IEnumerator ResetCursorPosition()
     {
-        isDragging = false;
+        // Wait for the end of frame to ensure all rendering is done
+        yield return new WaitForEndOfFrame();
         
-        // Restore cursor visibility and position
-        if (hideCursorWhileDragging)
-        {
-            Cursor.visible = true;
-            Cursor.lockState = CursorLockMode.None; // Return to normal cursor behavior
-            
-            // No need to warp cursor back - this also contributes to the flashing
-            // UnityEngine.InputSystem.Mouse.current.WarpCursorPosition(mouseDragStartPosition);
-        }
+        // Set cursor position back to start position
+        UnityEngine.InputSystem.Mouse.current.WarpCursorPosition(mouseDragStartPosition);
+        
+        // Small delay before making cursor visible again to prevent flashing
+        yield return new WaitForSeconds(0.01f);
+        
+        // Make cursor visible again
+        Cursor.visible = true;
     }
-    
-    // Handle dragging using normalized mouse delta with rate limiting
-    if (isDragging)
-    {
-        // Get the mouse delta
-        Vector2 mouseDelta = new Vector2(Input.GetAxis("Mouse X"), Input.GetAxis("Mouse Y"));
-        
-        // Apply sensitivity multiplier
-        mouseDelta *= mouseSensitivity;
-        
-        // Extract delta based on drag direction
-        float movementDelta = 0f;
-        
-        switch (dragDirection)
-        {
-            case DragDirection.Up:
-                movementDelta = mouseDelta.y; // Original behavior
-                break;
-                
-            case DragDirection.Down:
-                movementDelta = -mouseDelta.y; // Inverted Y
-                break;
-                
-            case DragDirection.Left:
-                movementDelta = -mouseDelta.x; // Use X-axis, inverted
-                break;
-                
-            case DragDirection.Right:
-                movementDelta = mouseDelta.x; // Use X-axis
-                break;
-        }
-        
-        // Apply a fixed scaling factor for more consistent behavior
-        movementDelta *= 10f;
-        
-        // Rate limit the maximum movement per second to create a more consistent experience
-        float maxDeltaPerFrame = (maxFramesPerSecond * distancePerFrame) * Time.deltaTime;
-        movementDelta = Mathf.Clamp(movementDelta, -maxDeltaPerFrame, maxDeltaPerFrame);
-        
-        // Accumulate the drag distance
-        accumulatedDragDistance += movementDelta;
-        
-        // Calculate how many frames to move
-        int frameChange = Mathf.FloorToInt(accumulatedDragDistance / distancePerFrame);
-        
-        if (frameChange != 0)
-        {
-            // Remove the consumed distance
-            accumulatedDragDistance -= frameChange * distancePerFrame;
-            
-            // Calculate new frame index
-            int newIndex = currentFrameIndex + frameChange;
-            
-            if (wrapAround)
-            {
-                // Wrap around if we go past the limits
-                newIndex = (newIndex % totalFrames + totalFrames) % totalFrames;
-            }
-            else
-            {
-                // Clamp to valid range
-                newIndex = Mathf.Clamp(newIndex, 0, totalFrames - 1);
-            }
-            
-            // Update frame if needed
-            if (newIndex != currentFrameIndex)
-            {
-                currentFrameIndex = newIndex;
-                displayImage.sprite = fovFrames[currentFrameIndex];
-                
-                // Trigger frame changed event
-                GameEvents.TriggerOnFrameChanged(currentFrameIndex);
-            }
-        }
-    }
-}
     
     // Optional: Public method to set the frame index directly
     public void SetFrameIndex(int index)
@@ -250,6 +266,7 @@ public class FOVImageController : MonoBehaviour
         Cursor.lockState = CursorLockMode.None;
     }
 }
+
 [Serializable]
 public enum DragDirection
 {

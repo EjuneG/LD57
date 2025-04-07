@@ -402,6 +402,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   continueButton: {fileID: 313981643}
   quitButton: {fileID: 536478870}
+  isVictory: 0
   gameplaySceneName: Gameplay
 --- !u!1 &441624521
 GameObject:
