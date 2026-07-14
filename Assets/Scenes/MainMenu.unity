@@ -1564,7 +1564,7 @@ MonoBehaviour:
   introVideo: {fileID: 1747897908}
   eyeObject: {fileID: 496360584}
   buttonsContainer: {fileID: 554326517}
-  delayAfterVideo: 14
+  delayAfterVideo: 0.5
   eyeAnimationDuration: 2
 --- !u!1001 &3059520960307589816
 PrefabInstance:
