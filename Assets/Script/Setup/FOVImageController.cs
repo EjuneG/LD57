@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using System;
+#if UNITY_WEBGL && !UNITY_EDITOR
+using System.Runtime.InteropServices;
+#endif
 
 public class FOVImageController : MonoBehaviour
 {
@@ -32,7 +35,20 @@ public class FOVImageController : MonoBehaviour
     // Public property to access current frame index
     public int CurrentFrameIndex => currentFrameIndex;
     public int TotalFrames => totalFrames;
-    
+
+#if UNITY_WEBGL && !UNITY_EDITOR
+    // Pointer Lock during right-button drags, so deltas keep flowing past the
+    // browser window edge. Must be done from a real DOM event handler (see
+    // Assets/Plugins/WebGL/RMBPointerLock.jslib), not via Cursor.lockState.
+    [DllImport("__Internal")]
+    private static extern void RMBPointerLock_SetEnabled(int enabled);
+
+    private void OnEnable()
+    {
+        RMBPointerLock_SetEnabled(1);
+    }
+#endif
+
     private void Start()
     {
         // Load all sprites from the specified resources folder
@@ -137,15 +153,24 @@ public class FOVImageController : MonoBehaviour
         {
             isDragging = false;
             
+#if UNITY_WEBGL && !UNITY_EDITOR
+            // The browser restores the cursor to where pointer lock began (the
+            // drag start position) on its own, but the lock-exit path leaves the
+            // OS default cursor showing on the canvas alongside the game's
+            // software-rendered one - re-apply the custom cursor instead.
+            Cursor.lockState = CursorLockMode.None;
+            StartCoroutine(ReapplyCustomCursorAfterPointerLock());
+#else
             // Restore cursor visibility and position
             if (hideCursorWhileDragging)
             {
                 // First unlock cursor if it was locked
                 Cursor.lockState = CursorLockMode.None;
-                
+
                 // Return cursor to where dragging started
                 StartCoroutine(ResetCursorPosition());
             }
+#endif
         }
         
         // Handle dragging using normalized mouse delta with rate limiting
@@ -224,6 +249,17 @@ public class FOVImageController : MonoBehaviour
         }
     }
     
+#if UNITY_WEBGL && !UNITY_EDITOR
+    private IEnumerator ReapplyCustomCursorAfterPointerLock()
+    {
+        // Run twice: the engine may overwrite the canvas cursor style while it
+        // processes the pointer-lock exit during the current frame.
+        CursorManager.ReapplyCursor();
+        yield return null;
+        CursorManager.ReapplyCursor();
+    }
+#endif
+
     // Coroutine to handle cursor reset with proper timing
     private IEnumerator ResetCursorPosition()
     {
@@ -264,6 +300,9 @@ public class FOVImageController : MonoBehaviour
         // Make sure cursor is visible and unlocked if script is disabled while dragging
         Cursor.visible = true;
         Cursor.lockState = CursorLockMode.None;
+#if UNITY_WEBGL && !UNITY_EDITOR
+        RMBPointerLock_SetEnabled(0);
+#endif
     }
 }
 

@@ -103,47 +103,81 @@ public class SimpleMenuSequence : MonoBehaviour
 
         introVideo.Play();
 
-        // Determine the clip duration (seconds). Verified on Unity 6 WebGL that the
-        // browser <video> element plays and ends correctly, but NONE of the Unity-side
-        // signals (loopPointReached, time, isPlaying) are bridged back — so the finish
-        // is driven by wall-clock time instead. The browser always plays the video at
-        // real speed, so realtimeSinceStartup tracks it exactly; Time.deltaTime must
-        // NOT be used here (it is clamped by maximumDeltaTime at low frame rates and
-        // falls behind wall time, stretching the wait).
+        // Determine the clip duration (seconds). On Unity 6 WebGL, loopPointReached is
+        // not bridged from the browser, but time/length are (verified) — so the finish
+        // is driven primarily by playback position. A network buffering stall pauses
+        // the browser video, so position (not wall time) is the only honest signal;
+        // a pure wall-clock deadline would cut the video short whenever it buffers.
+        // Time.deltaTime must not be used for any of this (it is clamped by
+        // maximumDeltaTime at low frame rates and falls behind wall time).
         double duration = introVideo.length;
         if (duration <= 0.0 && introVideo.frameRate > 0f)
         {
             duration = introVideo.frameCount / introVideo.frameRate;
         }
-        if (duration <= 0.0)
+        // intro_text.mp4 is 13.625s; a wildly different readout means the metadata
+        // bridge handed back garbage, so fall back to the known length.
+        if (duration < 5.0 || duration > 60.0)
         {
-            duration = 13.7; // known length of intro_text.mp4 (13.625s), last resort
+            duration = 13.7;
         }
 
         float playStart = Time.realtimeSinceStartup;
-        float deadline = playStart + (float)duration + 0.25f;
+        double lastPosition = 0.0;
+        float lastProgressWall = playStart;
+        float nextLog = playStart;
+        const float stallBailSeconds = 6f; // give up if playback makes no progress this long
+
         Debug.Log($"[Intro] Play. length={introVideo.length:F3} frameRate={introVideo.frameRate} " +
                   $"frameCount={introVideo.frameCount} -> duration={duration:F3}");
 
-        float nextLog = playStart;
-        while (!videoFinished && Time.realtimeSinceStartup < deadline)
+        while (!videoFinished)
         {
-            // Fast-path exits in case the Unity-side bridge works (harmless if it never does).
-            if (introVideo.time >= duration - 0.15)
+            float wall = Time.realtimeSinceStartup;
+            double position = introVideo.time;
+
+            if (position >= duration - 0.15)
             {
+                break; // reached the actual end of the clip
+            }
+
+            if (position > lastPosition + 0.01)
+            {
+                lastPosition = position;
+                lastProgressWall = wall;
+            }
+
+            if (lastPosition > 0.5)
+            {
+                // Position reporting works: wait on real progress, so buffering just
+                // extends the wait. Only bail if playback is wedged for good.
+                if (wall - lastProgressWall > stallBailSeconds)
+                {
+                    Debug.LogWarning($"[Intro] video stalled at {lastPosition:F2}s " +
+                                     $"for {stallBailSeconds}s; skipping to menu.");
+                    break;
+                }
+            }
+            else if (wall > playStart + (float)duration + 0.25f)
+            {
+                // Position never got bridged on this browser: wall-clock fallback.
                 break;
             }
-            if (Time.realtimeSinceStartup >= nextLog)
+
+            if (wall >= nextLog)
             {
-                nextLog = Time.realtimeSinceStartup + 2f;
-                Debug.Log($"[Intro] wall={Time.realtimeSinceStartup - playStart:F2} " +
-                          $"vp.time={introVideo.time:F2} isPlaying={introVideo.isPlaying}");
+                nextLog = wall + 2f;
+                Debug.Log($"[Intro] wall={wall - playStart:F2} vp.time={position:F2} " +
+                          $"isPlaying={introVideo.isPlaying}");
             }
             yield return null;
         }
 
         Debug.Log($"[Intro] exit. videoFinished={videoFinished} " +
                   $"wall={Time.realtimeSinceStartup - playStart:F2} vp.time={introVideo.time:F2}");
+
+        // Whatever ended the wait, don't leave the video playing behind the menu.
+        introVideo.Stop();
         introVideo.loopPointReached -= OnVideoEnd;
     }
 }

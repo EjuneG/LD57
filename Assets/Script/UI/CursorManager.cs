@@ -50,6 +50,21 @@ public class CursorManager : MonoBehaviour
     {
         SetupCursor();
     }
+
+    // Re-applies the custom cursor from anywhere. Needed on WebGL after exiting
+    // pointer lock, which leaves the browser showing the OS default cursor on
+    // top of the software-rendered one.
+    public static void ReapplyCursor()
+    {
+        if (instance != null)
+        {
+            instance.SetupCursor();
+        }
+        else
+        {
+            Cursor.visible = true;
+        }
+    }
     
     private void OnApplicationFocus(bool hasFocus)
     {
